@@ -1,0 +1,14 @@
+import os, sys
+from PIL import Image
+
+dirname = '/Users/ostwald/tmp/FOOBERRY'
+filename = 'ant.png'
+png = os.path.join (dirname, filename)
+root, ext = os.path.splitext(filename)
+
+print root
+
+im = Image.open(png)
+bg = Image.new("RGB", im.size, (255,255,255))
+bg.paste(im,im)
+# bg.save(r"C:\jk2.jpg")

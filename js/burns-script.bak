@@ -1,0 +1,143 @@
+
+/**
+Burns effect. Animate from start point to final Point
+
+we read the burns-data file for burns_configs
+
+*/
+
+$(function () {
+
+    var CARD = $('#card'); // this should be a global, defined higher in food chain
+    var pics_dir = 'pics/'
+
+    var zoom_factor = 1.2;
+    var animation_duration = 5000;
+
+    var img_name = 'IMG_2035';
+
+    $('button').button()
+    $('input#zoom-factor').val(zoom_factor);
+    $('input#img-name')
+        .val(img_name)
+        .change (function (event) {
+            img_name = $(this).val();
+            initialize();
+        })
+
+    var $img = $t('img')
+        .attr('src', getPath(img_name))
+        .load (function (event) {
+            log ("ORIGINAL")
+            showState(this);
+        })
+        .draggable()
+        .appendTo(CARD)
+        .click (function (event) {
+            showState (this)
+        })
+
+
+    function showState (img) {
+        var $img = $(img)
+        log (getName ($img.attr('src')))
+        log (stringify ({
+//            name: $img.attr('src'),
+            pos: $img.position(),
+            dims: { height: $img.height(), width: $img.width() }
+        }))
+    }
+
+    function getPath (name) {
+        return pics_dir + name+'.jpg'
+    }
+
+    function getName (path) {
+        return path.replace(pics_dir, '').replace('.jpg', '')
+    }
+
+    function setState (name, state) {
+        log ("set state: " + name)
+       var data;
+       try {
+           data = img_data[name][state]
+       } catch (error) {
+         alert ("could not get data for " + name);
+         $img.css ({left: 0, top: 0, width: '', height: ''})
+         return;
+       }
+       $img.css(data.pos);
+       $img.css(data.dims);
+    }
+
+    function initialize() {
+        var name = $('#img-name').val()
+        $img.attr('src', getPath(name))
+        setState(name, 'init')
+    }
+
+    function finalize () {
+        var name = $('#img-name').val()
+        setState(name, 'final')
+    }
+
+    function animate (name) {
+        var name = $('#img-name').val()
+        var data = img_data[name].final
+        $img.animate ({
+            left: data.pos.left,
+            top: data.pos.top,
+            width: data.dims.width,
+            height: data.dims.height
+        }, animation_duration)
+
+    }
+
+    function doBurns () {
+        $img
+            .css({
+                position : 'absolute',
+                height: 700
+            })
+
+            .load (function () {
+                $(this).animate({
+                    'height' : 2000,
+                    'top' : -1050,
+                    left : -1030
+                }, 4000)
+            })
+    }
+
+    // ------- button handlers -------------
+
+    $('#zoom-in').click (function (event) {
+        log ("ZOOM IN");
+        $img.css({
+            width : $img.width() * zoom_factor,
+            height : $img.height() * zoom_factor,
+        })
+    })
+
+    $('#zoom-out').click (function (event) {
+        log ("ZOOM IN");
+        $img.css({
+            width : $img.width() / $('#zoom-factor').val(),
+            height : $img.height() / $('#zoom-factor').val()
+        })
+    })
+
+    $('#do-init').click (function (event) {
+        initialize()
+    })
+
+    $('#do-final').click (function (event) {
+        finalize();
+    })
+
+    $('#do-burns').click (function (event) {
+        animate();
+//        doBurns();
+    })
+
+})

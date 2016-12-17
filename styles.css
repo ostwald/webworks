@@ -1,0 +1,146 @@
+body {
+    text-align:center;
+    min-width:800px;
+}
+
+#card {
+	background-color:white;
+	border:black solid 0;
+	border-radius:10px;
+	overflow:hidden;
+	position:relative;
+	z-index:0;
+    top:50px;
+    /*left:100px;*/
+    width:800px;
+    height:500px;
+    text-align:center;
+    margin:auto;
+}
+
+.card-layer {
+	position:absolute;
+    top:0px;
+    left:0px;
+	width:800px;
+	height:500px;
+	text-align:left;
+}
+
+.controls {
+    padding:10px;
+}
+
+#emoji-layer {
+    background-color:transparent;
+}
+
+#hb-layer {
+    z-index:5;
+}
+
+#text-layer {
+    position-absolute:
+    background-color:transparent;
+}
+
+#hb-mask-layer {
+    background-color:transparent;
+    background-image: url("hb-mask.png");
+    z-index:2;
+}
+
+#start-button {
+    float:right;
+}
+
+#emoji-layer {
+    z-index:1;
+}
+
+.emoji{
+	position:absolute;
+	background-color:white;
+	border:thin solid gray;
+	box-shadow:1px 1px 1px #666666, inset 0px 0px 10px #666666;
+}
+
+#slot-wrapper {
+    position:relative;
+    top: -325px;
+    height:200px;
+    /*width:800px;*/
+   /* left:100px;*/
+    text-align:center;
+    border:orange 0 solid;
+    margin:auto;
+}
+
+#slot-controls {
+    position:relative;
+
+}
+
+.slot {
+    position:relative;
+    display:inline-block;
+	width:100px;
+	height:120px;
+	text-align:center;
+	border-radius:10px;
+	border:black thin solid;
+	overflow:hidden;
+	background-color:#eeeeee;
+	box-shadow:inset 2px 2px 5px #999999;
+}
+
+.slot .emoji {
+    border:thin black solid;
+}
+
+#slots {
+    	position:relative;
+
+}
+
+#text-layer {
+    font-family:verdana;
+    text-align:center;
+    font-size: 2.0em;
+    text-shadow: 2px 2px #333333;
+
+}
+
+#text-layer.step_1 {
+    color:#c99f00;
+}
+
+#text-layer.step_2 {
+    color:#ee3a4b;
+}
+
+
+#text-layer.step_3 {
+    color:#3c5ea5;
+}
+
+
+#text-layer.step_0 {
+    top:100px;
+}
+
+img.spinner {
+    height:25px;
+    padding-left:5px;
+}
+
+/*
+@media (min-width: 580px) {
+    body {
+        background-color:red;
+    }
+    #card {
+        top:0px;
+        left:0px;
+    }
+}*/

@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+
+
+    <title>Karen 2016</title>
+      <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+      <link rel="stylesheet" href="styles.css">
+  <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+  <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+  <script src="js/base-script.js"></script>
+  <script src="js/moment.min.js"></script>
+  <script src="js/emoji-data.js"></script>
+  <script src="js/emoji-script.js"></script>
+  <script src="js/hb-letters.js"></script>
+  <script src="js/hb-script.js"></script>
+  <script src="js/slot-script.js"></script>
+
+  <script src="js/burns-script.js"></script>
+  <script src="js/burns-data.js"></script>
+  </head>
+<body>
+<div id="emoji-controls" class="controls"  style="display:none">
+    <button type="button" id="start-button">start</button>
+
+    <button type="button" id="toggle-emojis">toggle emojis</button>
+    <button type="button" id="fade-emojis">fade emojis</button>
+    <button type="button" id="hide-emojis">hide emojis</button>
+    <button type="button" id="cycle-emojis">cycle emojis</button>
+    <button type="button" id="shake-emojis">shake emojis</button>
+</div>
+
+<div id="hb-controls" class="controls"  style="display:none">
+    <button type="button" id="show-hb">show HB</button>
+    <button type="button" id="show-positions">show Positions</button>
+    <!-- <button type="button" id="do-fly-in">do fly in</button> -->
+    <button type="button" id="fly-out-init">fly out init</button>
+    <button type="button" id="do-fly-out">do fly out</button>
+    <button type="button" id="apply-mask">apply mask</button>
+</div>
+<div id="card">
+    <div id="burns-layer" class="card-layer"></div>
+    <div id="hb-mask-layer" class="card-layer" style="display:none"></div>
+    <div id="emoji-layer" class="card-layer"></div>
+    <div id="hb-layer" class="card-layer"></div>
+    <div id="text-layer" class="card-layer" style="display:none"></div>
+</div>
+
+<div id="slot-wrapper" style="display:none">
+
+    <div id="slots">
+        <div id="slot1" class="slot"></div>
+        <div id="slot2" class="slot"></div>
+        <div id="slot3" class="slot"></div>
+    </div>
+    <div id="slot-controls" class="controls">
+        <button type="button" id="slot-start-button">spin!</button>
+        <!--<button type="button" id="slot-stop">stop</button>-->
+    </div>
+</div>
+</body>
+
+<script>
+// initialize globals - must come before card-script is loaded
+var $CARD = $('#card')
+    .css('background-color','white')
+
+$CARD.find('.card-layer').hide();
+
+var SLOT = new SlotMachine('#slot-wrapper')
+var BURNS = new BurnsAnimator();
+
+/* ----------------------------- */
+
+var $HB_MASK_LAYER = $('#hb-mask-layer');
+var EMOJI_LAYER = EmojiLayer();
+var HB_LAYER = HappyBirthdayLayer();
+
+// $(document.body).append(screen.availWidth);
+
+/*
+// get_off_card_positions tester
+$CARD.css({overflow:'visible', top:'200px', left:'250px', border:'solid black thin', height:"400px", width:"600px"})
+$(get_off_card_positions($CARD)).each (function (i, pos) {
+    $CARD.append ($t('div')
+        .css ({position:'absolute'})
+        .css (pos)
+        .html('X'))
+
+    log (stringify(pos))
+});
+*/
+/*
+// slot initialize test
+for (var i=0;i<100;i++) {
+    log ('')
+    log (i)
+    var emojis_used = []
+    $(SLOT.slots).each (function (j, slot) {
+        var emoji = random_emoji_name(emojis_used);
+        log ("emoji: " + emoji)
+        // slot.move_img (slot.get_img(emoji), true)
+        emojis_used.push(emoji)
+    })
+}
+*/
+
+</script>
+<script src="js/card-script.js"></script>
+
+</html>
+
+

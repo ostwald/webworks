@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+    <title>Karen 2016</title>
+      <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+      <link rel="stylesheet" href="styles.css">
+  <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+  <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+  <script src="js/base-script.js"></script>
+  <script src="js/moment.min.js"></script>
+  <script src="js/emoji-data.js"></script>
+  <script src="js/emoji-script.js"></script>
+  <script src="js/hb-letters.js"></script>
+  <script src="js/hb-script.js"></script>
+  <script src="js/slot-script.js"></script>
+    <style>
+        #card {
+            border:thin black solid;
+        }
+        #slot-wrapper {
+            top:660px;
+        }
+
+    </style>
+  </head>
+<body>
+<div id="emoji-controls" class="controls">
+    <button type="button" id="start-button">start</button>
+
+    <button type="button" id="toggle-emojis">toggle emojis</button>
+    <button type="button" id="fade-emojis">fade emojis</button>
+    <button type="button" id="hide-emojis">hide emojis</button>
+    <button type="button" id="cycle-emojis">cycle emojis</button>
+    <button type="button" id="shake-emojis">shake emojis</button>
+</div>
+
+<div id="hb-controls" class="controls">
+    <button type="button" id="show-hb">show HB</button>
+    <button type="button" id="show-positions">show Positions</button>
+    <!-- <button type="button" id="do-fly-in">do fly in</button> -->
+    <button type="button" id="fly-out-init">fly out init</button>
+    <button type="button" id="do-fly-out">do fly out</button>
+    <button type="button" id="apply-mask">apply mask</button>
+</div>
+<div id="card">
+    <div id="hb-mask-layer" class="card-layer" style="display:none">
+
+    </div>
+    <div id="emoji-layer" class="card-layer"></div>
+    <div id="hb-layer" class="card-layer"></div>
+</div>
+
+<div id="slot-wrapper">
+    <div id="slot-controls" class="controls">
+        <button type="button" id="slot-move">move</button>
+        <button type="button" id="slot-start-button">start</button>
+        <button type="button" id="slot-stop">stop</button>
+    </div>
+    <div id="slots">
+        <div id="slot1" class="slot"></div>
+        <div id="slot2" class="slot"></div>
+        <div id="slot3" class="slot"></div>
+    </div>
+</div>
+</body>
+<script>
+
+$('button').button();
+
+var $CARD = $('#card');
+
+var $HB_MASK_LAYER = $('#hb-mask-layer');
+
+
+var EMOJI_LAYER = EmojiLayer();
+var HB_LAYER = HappyBirthdayLayer();
+HB_LAYER.hide();
+HB_LAYER.fly_out_init();
+// start emojis
+$('#start-button').click (EMOJI_LAYER.start);
+
+// ------ emoji event handlers ----------
+
+        $('#toggle-emojis').click (EMOJI_LAYER.toggleEmojis)
+
+        $('#fade-emojis').click (function (event) {
+            var opacity = $('#emoji-layer').css('opacity');
+            log ("opacity: " + opacity)
+            if (opacity == 1)
+                $('#emoji-layer').animate({
+                    'opacity': .2
+                }, 1000)
+            else
+                $('#emoji-layer').animate({
+                    'opacity': 1
+                }, 1000)
+        })
+
+        $('#hide-emojis').click (function (event) {
+            var keepers = ['pink-rose', 'red-rose']
+            $(EMOJI_NAMES).each(function (i, name) {
+                if (keepers.indexOf(name) == -1)
+                    EMOJI_LAYER.hideEmojis(name)
+            });
+        })
+
+        $('#cycle-emojis').click (function (event) {
+            EMOJI_LAYER.toggleCycle();
+        })
+
+        $('#shake-emojis').click (EMOJI_LAYER.shakeEmojis)
+
+</script>
+</html>
+
+
