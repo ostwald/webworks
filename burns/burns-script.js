@@ -44,8 +44,6 @@ var BurnsAnimator = Class.extend({
              .val(this.img_name)
          var self = this;
 
-//         this.$img_layer = $t('div').addClass('.burns-layer')
-
          this.$img = $t('img')
              .attr('src', this.getPath())
              .load (function (event) {
@@ -114,19 +112,15 @@ var BurnsAnimator = Class.extend({
         if (!data) {
             log ("NOTICE: data not found for " + this.img_name);
             var initial_data = {
-                pos: {
-                    top: 0,
-                    left: 0
-                },
-                dims: {
-                    height: this.$img.height(),
-                    width: this.$img.width()
-                }
+                top: 0,
+                left: 0,
+                height: this.$img.height(),
+                width: this.$img.width()
             }
             var data = {
-                           'init': initial_data,
-                           'final': initial_data
-                       }
+                'init': initial_data,
+                'final': initial_data
+            }
             BURNS_DATA[this.img_name] = data;
         }
         return data;
@@ -135,10 +129,13 @@ var BurnsAnimator = Class.extend({
 
     showState: function () {
         log (this.img_name);
+        var pos = this.$img.position();
         log (stringify ({
 //            name: this.$img.attr('src'),
-            pos: this.$img.position(),
-            dims: { height: this.$img.height(), width: this.$img.width() }
+            top: pos.top,
+            left: pos.left,
+            height: this.$img.height(),
+            width: this.$img.width()
         }))
     },
 
@@ -163,10 +160,9 @@ var BurnsAnimator = Class.extend({
          this.$img.css ({left: 0, top: 0, width: '', height: ''})
          return;
        }
-       this.$img.css(data.pos);
-       this.$img.css(data.dims);
-//       log ("... setState done")
-       // $('#burns-data').html(stringify(BURNS_DATA))
+
+       this.$img.css(data);
+
     },
 
     animate: function (name) {
@@ -175,13 +171,7 @@ var BurnsAnimator = Class.extend({
         var final_state = this.get_config_data().final
         // this.$img.css({opacity:0})
         // rotateAnimation(this.$img, 5)
-        this.$img.animate ({
-            left: final_state.pos.left,
-            top: final_state.pos.top,
-            width: final_state.dims.width,
-            height: final_state.dims.height,
-            opacity: 1.0
-        }, this.animation_duration, function () {
+        this.$img.animate (final_state, this.animation_duration, function () {
             $CARD.trigger('klm:burns-animation-done')
         })
     },
@@ -190,23 +180,53 @@ var BurnsAnimator = Class.extend({
         log ("saveState = " + state)
 
         if (state == 'init' || state == 'final') {
-
+            var pos = this.$img.position();
             BURNS_DATA[this.img_name][state] = {
-                pos: this.$img.position(),
-                dims: {
-                    height: this.$img.height(),
-                    width: this.$img.width()
-                }
+                left: pos.left,
+                top: pos.top,
+                height: this.$img.height(),
+                width: this.$img.width()
             }
 
             log ("position: " + stringify(this.$img.position()))
 
-            //log ('Updated');
-//            log (stringify(this.get_config_data()))
         }
         log ('Updated ' + state + ' config for ' + this.img_name);
         log (stringify(BURNS_DATA[this.img_name][state]))
-        $('#burns-data').html(stringify(BURNS_DATA))
+        $('#burns-data').html("BURNS_DATA = " + stringify(BURNS_DATA))
+    },
+
+    convert_config: function () {
+        log ("BURNS_DATA")
+
+        function get_state_data(img_data, state) {
+            var old_data = img_data[state]
+            var new_data = {}
+            new_data.top = old_data.pos.top;
+            new_data.left = old_data.pos.left;
+            new_data.width = old_data.dims.width;
+            new_data.height = old_data.dims.height;
+            return new_data;
+
+        }
+        var NEW_BURNS = {}
+        for (var key in BURNS_DATA) {
+            log (" - " + key)
+            var old_data = BURNS_DATA[key]
+            var new_data = {}
+            $(['init', 'final']).each (function (i, state) {
+                var sdata = {}
+                try {
+                    sdata = get_state_data(old_data, state)
+//                    log (stringify (sdata))
+                } catch (error) {
+                    log ("ERROR (" + key + "): " + error)
+                }
+                new_data[state] = sdata
+            })
+            NEW_BURNS[key] = new_data;
+        }
+        return NEW_BURNS;
     },
 
     dump_config: function () {
@@ -223,9 +243,9 @@ function populateCatalog() {
         .appendTo($dom)
 
     var names = Object.keys(BURNS_DATA);
-    console.log (names)
+    // console.log (names)
     $(names).each (function (i, name) {
-        log ('- ' + BURNS.getPath(name))
+        // log ('- ' + BURNS.getPath(name))
         if (name != 'template')
             $items.append($t('li')
                 .html($t('img')
@@ -239,6 +259,8 @@ function populateCatalog() {
                 }))
 
     })
+
+    log ("catalog populated")
 
 }
 
