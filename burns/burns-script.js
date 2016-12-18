@@ -24,7 +24,7 @@ var BurnsAnimator = Class.extend({
         this.$img = null;
 
         // define some defaults
-        this.pics_dir = 'named-pics/'
+        this.pics_dir = 'images/'
         this.zoom_factor = 1.2;
         this.animation_duration = 5000;
         this.img_ext = '.jpg'

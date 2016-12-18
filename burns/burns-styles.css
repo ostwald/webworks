@@ -1,0 +1,143 @@
+body {
+    min-width:1000px;
+    font-family:UbuntuRegular;
+    font-size:.85em;
+}
+
+.ui-widget {
+    font-size:1.0em;
+}
+
+#card {
+    position:absolute;
+    top:100px;
+    left:100px;
+	background:white;
+	border:black solid 1px;
+	border-radius:10px;
+	overflow:hidden;
+	z-index:0;
+    width:800px;
+    height:500px;
+    text-align:left;
+}
+
+.card-layer {
+	position:absolute;
+    top:0px;
+    left:0px;
+	width:800px;
+	height:500px;
+	text-align:left;
+}
+
+
+
+#controls {
+    position:absolute;
+    top:20px;
+    left:100px;
+    width:800px;
+    border:0 red solid;
+    text-align:center;
+}
+
+#controls input {
+    font-size:1.0em;
+    /* position:relative;
+    top:5px; */
+}
+
+#img-control {
+    float:left;
+    margin:0px;
+}
+
+.control-group {
+    text-align:center;
+    display:inline-block;
+    border:green solid 0;
+    margin: 0 20px;
+}
+
+.control-group .ui-widget {
+    font-size:1em;
+}
+
+.control-group button {
+    padding:3px 5px;
+    min-width:25px;
+}
+
+.control-label {
+    text_align:center;
+    display:block;
+}
+
+#data-control {
+    float:right;
+    height:100%;
+    margin:0;
+}
+
+#bottom-controls {
+    position:absolute;
+    top:620px;
+    left:100px;
+    width:800px;
+    text-align:center;
+}
+
+#bottom-controls .interior {
+    margin:0 20px
+}
+
+
+
+#catalog {
+    position:absolute;
+    top:670px;
+    left:100px;
+    width:800px;
+    height:130px;
+    border:black solid thin;
+    overflow-x:scroll;
+    overflow-y:hidden;
+}
+
+
+#burns-layer {
+    position:absolute;
+    background-color:white;
+    width:800px;
+    height:500px;
+    z-index:5;
+}
+
+ul#catalog-items {
+    list-type-style:none;
+    margin:0;
+    padding:0;
+    /* width:5000px; */
+    text-align:left;
+    white-space:nowrap;
+}
+
+#catalog-items li {
+    display:inline-block;
+    text_align:left;
+    padding:1px;
+    margin:0;
+    height:75px;
+}
+
+#catalog-items img {
+    border:2px grey solid;
+}
+
+#catalog-items img:hover {
+    border-color:orange;
+    cursor:pointer;
+}
+
+

@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+    <title>Burns</title>
+
+    <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+    <script src="../js/base-script.js"></script>
+    <script src="../js/moment.min.js"></script>
+    <script>
+
+    var BURNS;
+
+    </script>
+
+    <script src="burns-script.js"></script>
+    <script src="burns-data.js"></script>
+
+    <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+    <link rel="stylesheet" href="../assets/fonts.css">
+    <link rel="stylesheet" href="burns-styles.css">
+</head>
+<body>
+
+<div id="controls">
+    <div id="data-control" class="control-group">
+        <label class="control-label" for="burns-data">Config</label>
+        <textarea id="burns-data"></textarea>
+    </div>
+
+    <div id="img-control" class="control-group">
+        <label class="control-label" for="img-name">Image</label>
+        <input type="text" id="" placeholder="img name"/>
+    </div>
+    <div id="zoom-control" class="control-group">
+        <label class="control-label" for="zoom-factor">Zoom</label>
+        <button type="button" id="zoom-in">+</button>
+
+        <input type="text" id="zoom-factor" placeholder="zoom" size="4"/>
+        <button type="button" id="zoom-out">-</button>
+    </div>
+    <div id="state-control" class="control-group">
+        <label class="control-label" for="zoom-factor">State</label>
+        <button type="button" id="do-init">init</button>
+        <button type="button" id="do-final">final</button>
+    </div>
+</div>
+
+<div id="card">
+    <div id="burns-layer"></div>
+</div>
+
+
+<div id="bottom-controls">
+    <button type="button" id="set-init-state">set Initial state</button>
+    <button type="button" id="set-final-state">set Final state</button>
+    <!-- <button type="button" id="do-dump" class="interior">dump config</button> -->
+    <button type="button" id="do-burns" class="interior">animate</button>
+
+</div>
+
+<div id="catalog"></div>
+
+
+</body>
+<script>
+/** BURNS LOCAL INITS **/
+
+// ------- button handlers -------------
+var $CARD = $('#card'); // this should be a global, defined higher in food chain
+var BURNS = new BurnsAnimator();
+
+$('button#set-init-state')
+    .button()
+    .css({float: 'left'})
+    .click (function (event) {
+        BURNS.saveState('init');
+    })
+
+$('button#set-final-state')
+    .button()
+    .css({float: 'right'})
+    .click (function (event) {
+        BURNS.saveState('final');
+    })
+
+$('button#do-dump')
+    .button()
+    .click(function () {
+        BURNS.dump_config();
+    })
+
+populateCatalog();
+
+
+</script>
+</html>
+
+
