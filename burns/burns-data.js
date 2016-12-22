@@ -3,214 +3,144 @@ BURNS_DATA = {
     "init": {},
     "final": {}
   },
-  "grass_with_leo": {
+  "IMG_2278": {
     "init": {
-      "top": -33,
-      "left": -95,
-      "width": 911,
-      "height": 683
+      "left": -55,
+      "top": -8,
+      "height": 204,
+      "width": 308
     },
     "final": {
-      "top": -1065,
-      "left": -1048,
-      "width": 2720,
-      "height": 2040
+      "left": 654,
+      "top": 365,
+      "height": 204,
+      "width": 308
     }
   },
-  "alps_vista": {
+  "IMG_2275": {
     "init": {
-      "top": -418,
-      "left": -42,
-      "width": 2446,
-      "height": 2321
+      "left": 617,
+      "top": -2,
+      "height": 166,
+      "width": 178
     },
     "final": {
-      "top": -606,
-      "left": -33,
-      "width": 1180,
-      "height": 1121
+      "left": -24,
+      "top": 349,
+      "height": 166,
+      "width": 178
     }
   },
-  "iceland_falls": {
+  "IMG_2274": {
     "init": {
-      "top": -201,
-      "left": -638,
-      "width": 1700,
-      "height": 2267
+      "left": -3,
+      "top": -1,
+      "height": 569,
+      "width": 853
     },
     "final": {
-      "top": -471,
-      "left": -17,
-      "width": 820,
-      "height": 1093
+      "top": 0,
+      "left": 0,
+      "height": 683,
+      "width": 1024
     }
   },
-  "okaboji_stoners": {
+  "IMG_2276": {
     "init": {
-      "top": -848,
-      "left": -519,
-      "width": 3500,
-      "height": 1870
+      "left": -206,
+      "top": -5,
+      "height": 605,
+      "width": 922
     },
     "final": {
-      "top": -114,
-      "left": -224,
-      "width": 1173,
-      "height": 627
+      "top": 0,
+      "left": 0,
+      "height": 420,
+      "width": 640
     }
   },
-  "k_keystone": {
+  "IMG_2277": {
     "init": {
       "top": 0,
       "left": 0,
-      "width": 92,
-      "height": 123
+      "height": 410,
+      "width": 640
     },
     "final": {
-      "top": 16,
-      "left": 243,
-      "width": 329,
-      "height": 444
+      "top": 0,
+      "left": 0,
+      "height": 410,
+      "width": 640
     }
   },
-  "k_blowing": {
+  "FullSizeRender_4": {
     "init": {
-      "top": -102,
-      "left": -1,
-      "width": 947,
-      "height": 708
+      "left": -22,
+      "top": -2,
+      "height": 410,
+      "width": 640
     },
     "final": {
-      "top": -102,
-      "left": -1,
-      "width": 947,
-      "height": 708
+      "top": 0,
+      "left": 0,
+      "height": 410,
+      "width": 640
     }
   },
-  "fun_bike": {
+  "FullSizeRender_3": {
     "init": {
-      "top": 491,
-      "left": -278,
-      "width": 287,
-      "height": 381
-    },
-    "final": {
-      "top": -507,
-      "left": 802,
-      "width": 384,
-      "height": 510
-    }
-  },
-  "alps_glacier": {
-    "init": {
-      "top": -919,
-      "left": -498,
-      "width": 1795,
-      "height": 1657
-    },
-    "final": {
-      "top": -202,
-      "left": -16,
-      "width": 896,
-      "height": 827
-    }
-  },
-  "okaboji_tube": {
-    "init": {
-      "top": 45,
-      "left": 112,
-      "width": 558,
-      "height": 419
-    },
-    "final": {
-      "top": -11,
-      "left": -332,
-      "width": 1667,
-      "height": 1250
-    }
-  },
-  "eiffel": {
-    "init": {
-      "top": -685,
       "left": 29,
-      "width": 1186,
-      "height": 1578
+      "top": 0,
+      "height": 402,
+      "width": 635
     },
     "final": {
-      "top": -105,
-      "left": 17,
-      "width": 476,
-      "height": 634
+      "top": 0,
+      "left": 0,
+      "height": 402,
+      "width": 635
     }
   },
-  "europe_k_and_j": {
+  "FullSizeRender_2": {
     "init": {
-      "top": -249,
-      "left": -87,
-      "width": 2137,
-      "height": 1720
+      "left": 65,
+      "top": -2,
+      "height": 412,
+      "width": 640
     },
     "final": {
-      "top": -204,
-      "left": -44,
-      "width": 1031,
-      "height": 829
+      "top": 0,
+      "left": 0,
+      "height": 412,
+      "width": 640
     }
   },
-  "okaboji_bench_JK": {
+  "FullSizeRender_1": {
     "init": {
-      "top": -448,
-      "left": -713,
-      "width": 2267,
-      "height": 1700
+      "left": 117,
+      "top": 0,
+      "height": 407,
+      "width": 640
     },
     "final": {
-      "top": -121,
-      "left": -2,
-      "width": 911,
-      "height": 683
+      "top": 0,
+      "left": 0,
+      "height": 407,
+      "width": 640
     }
   },
-  "jk_vail_hike": {
+  "FullSizeRender": {
     "init": {
-      "top": -1,
-      "left": 413,
-      "width": 388,
-      "height": 291
+      "left": 174,
+      "top": -2,
+      "height": 419,
+      "width": 627
     },
     "final": {
-      "top": -216,
-      "left": -400,
-      "width": 966,
-      "height": 725
-    }
-  },
-  "j&k_keystone": {
-    "init": {
-      "top": -21,
-      "left": 54,
-      "width": 329,
-      "height": 329
-    },
-    "final": {
-      "top": -35,
-      "left": -23,
-      "width": 1181,
-      "height": 1181
-    }
-  },
-  "okoboji_dock": {
-    "init": {
-      "left": -5,
-      "top": -377,
-      "height": 1417,
-      "width": 1891
-    },
-    "final": {
-      "left": -1,
-      "top": -60,
-      "height": 683,
-      "width": 912
+      "top": 0,
+      "left": 0,
+      "height": 419,
+      "width": 627
     }
   }
 }

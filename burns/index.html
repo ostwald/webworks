@@ -23,7 +23,7 @@
 </head>
 <body>
 
-<div id="controls">
+<div id="top-controls">
     <div id="data-control" class="control-group">
         <label class="control-label" for="burns-data">Config</label>
         <textarea id="burns-data"></textarea>
@@ -51,16 +51,41 @@
     <div id="burns-layer"></div>
 </div>
 
-
 <div id="bottom-controls">
     <button type="button" id="set-init-state">set Initial state</button>
     <button type="button" id="set-final-state">set Final state</button>
     <!-- <button type="button" id="do-dump" class="interior">dump config</button> -->
+    <button type="button" id="remove-image" class="interior">remove</button>
     <button type="button" id="do-burns" class="interior">animate</button>
-
 </div>
 
-<div id="catalog"></div>
+<div id="burns-tabs">
+    <ul>
+        <li><a href="#catalog">Catalog</a></li>
+        <li><a href="#state-info">State Info</a></li>
+    </ul>
+    <div id="catalog"></div>
+    <div id="state-info">
+        <table id="state-table">
+            <thead>
+            <tr>
+                <th></th>
+                <th>initial</th>
+                <th>final</th>
+            </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>foo</td>
+                    <td>foo</td>
+                    <td>foo</td>
+                </tr>
+
+            </tbody>
+        </table>
+    </div>
+</div>
+
 
 
 </body>
@@ -70,6 +95,8 @@
 // ------- button handlers -------------
 var $CARD = $('#card'); // this should be a global, defined higher in food chain
 var BURNS = new BurnsAnimator();
+
+$('#burns-tabs').tabs({active:0});
 
 $('button#set-init-state')
     .button()
@@ -90,6 +117,30 @@ $('button#do-dump')
     .click(function () {
         BURNS.dump_config();
     })
+
+$('#remove-image').click (function (event) {
+    BURNS.remove_image();
+})
+
+$('#zoom-in').click (function (event) {
+    log ("ZOOM IN");
+    var $img = BURNS.get_current_image().$img
+
+    $img.css({
+        width : $img.width() * $('#zoom-factor').val(),
+        height : $img.height() * $('#zoom-factor').val(),
+    })
+})
+
+$('#zoom-out').click (function (event) {
+    log ("ZOOM IN");
+    var $img = BURNS.get_current_image().$img
+
+    $img.css({
+        width : $img.width() / $('#zoom-factor').val(),
+        height : $img.height() / $('#zoom-factor').val()
+    })
+})
 
 populateCatalog();
 

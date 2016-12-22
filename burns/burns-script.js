@@ -10,105 +10,76 @@ we read the burns-data file for burns_configs
 initialized with a dom img
 */
 var BurnsImage = Class.extend({
-    init: function ($img) {
-        this.$img = $img
-        this.width = $img.width()
-//        this.height = $()
-    }
-
-});
-
-
-var BurnsAnimator = Class.extend({
-    init: function (img_name) {
-        this.$img = null;
-
-        // define some defaults
-        this.pics_dir = 'images/'
-        this.zoom_factor = 1.2;
-        this.animation_duration = 5000;
-        this.img_ext = '.jpg'
-        
-        this.initialize_UI();
-        this.$burns_layer = $('#burns-layer')
-        $CARD.append(this.$burns_layer)
-        if (img_name)
-            this.initialize_image(this.img_name);
-
-    },
-
-    initialize_image: function (img_name) {
-         // IMAGE SHOULD BE ON IT'S OWN DIV (BURNS)
-         this.img_name = img_name || this.img_name;
-         $('input#img-name')
-             .val(this.img_name)
-         var self = this;
-
-         this.$img = $t('img')
-             .attr('src', this.getPath())
-             .load (function (event) {
-//                 log ("initial load complete")
-                 self.$burns_layer
-                    .html(self.$img);
-
-                 self.setState('init');
-             })
-             .draggable()
-             .click (function (event) {
-                 self.showState (this)
-             })
-    },
-
-    cache_configs:function () {
-        var key = 'klm_configs';
-        localStorage.setItem(key, JSON.stringify(this.data));
-
-    },
-
-    initialize_UI: function () {
+    init: function (img) {
+        this.$img = $(img)
+        log ("BUrNS IMAGE for: " + this.$img.attr('src'));
         var self = this;
-        
-        $('button').button()
-        $('input#zoom-factor').val(this.zoom_factor);
-        $('input#img-name')
-            .val(this.img_name)
-            .change (function (event) {
-
-                img_name = $(this).val();
-                self.initialize_image(img_name);
+        this.img_name = $(img).attr('src').replace ('images/','').replace('.jpg','')
+        this.$img
+            .draggable()
+            .click (function (event) {
+                log ('- ' + self.img_name + ' clicked')
+                BURNS.initialize_image(self.img_name)
+                self.showState ()
             })
-            
-        $('#zoom-in').click (function (event) {
-            log ("ZOOM IN");
-            self.$img.css({
-                width : self.$img.width() * self.zoom_factor,
-                height : self.$img.height() * self.zoom_factor,
-            })
-        })
-    
-        $('#zoom-out').click (function (event) {
-            log ("ZOOM IN");
-            self.$img.css({
-                width : self.$img.width() / $('#zoom-factor').val(),
-                height : self.$img.height() / $('#zoom-factor').val()
-            })
-        })
-    
-        $('#do-init').click (function (event) {
-            self.setState('init');
-        })
-    
-        $('#do-final').click (function (event) {
-            self.setState('final');
-        })
-    
-        $('#do-burns').click (function (event) {
-            self.animate();
-        })            
     },
-    
+
+    activate: function () {
+        log ('activating : ' + this.img_name)
+        BURNS.$burns_layer.find('img').removeClass('current')
+        this.$img.show().addClass('current')
+        return this;
+    },
+
+    setState: function (state) {
+        log ("set state: " + this.img_name + " (" + state + ")")
+       var data;
+       // log (stringify(BURNS_DATA))
+       try {
+           data = this.get_config_data()[state]
+//           log ("setState data - " + stringify(data));
+       } catch (error) {
+         log ("setState Error: could not get data for " + name);
+         this.$img.css ({left: 0, top: 0, width: '', height: ''})
+         return;
+       }
+       this.$img.css(data);
+       return this;
+    },
+
+    saveState: function (state) {
+        log ("image saveState")
+        var pos = this.$img.position();
+        BURNS_DATA[this.img_name][state] = {
+            left: pos.left,
+            top: pos.top,
+            height: this.$img.height(),
+            width: this.$img.width()
+        }
+
+        log ("position: " + stringify(this.$img.position()));
+        return this;
+    },
+
+    showState: function () {
+        log (this.img_name);
+        var pos = this.$img.position();
+        log (stringify ({
+//            name: this.$img.attr('src'),
+            top: pos.top,
+            left: pos.left,
+            height: this.$img.height(),
+            width: this.$img.width()
+        }))
+    },
+
     get_config_data: function () {
         var data = BURNS_DATA[this.img_name];
+        if (this.$img.length) {
+//            console.log (this.$img)
+//            log ("$img exists?")
+//            log (' -- ' + this.$img.height())
+        }
         if (!data) {
             log ("NOTICE: data not found for " + this.img_name);
             var initial_data = {
@@ -126,17 +97,131 @@ var BurnsAnimator = Class.extend({
         return data;
     },
 
+});
+
+
+var BurnsAnimator = Class.extend({
+    init: function (img_name) {
+        this.$img = null;
+
+        // define some defaults
+        this.pics_dir = 'images/'
+        this.zoom_factor = 1.2;
+        this.animation_duration = 5000;
+        this.img_ext = '.jpg'
+        this.$burns_layer = $('#burns-layer')
+        this.initialize_UI();
+        $CARD.append(this.$burns_layer)
+        this.images = {}
+        if (img_name)
+            this.initialize_image(this.img_name);
+
+    },
+
+
+    get_current_image: function () {
+        return this.images[this.img_name];
+    },
+
+    // instantiate an image if necessary, and then
+    // side-effect sets this.img_name
+    initialize_image: function (img_name) {
+        // IMAGE SHOULD BE ON IT'S OWN DIV (BURNS)
+        this.img_name = img_name || this.img_name;
+
+        $('input#img-name')
+            .val(this.img_name)
+
+        this.$burns_layer.children('img').removeClass('current')
+
+        var image = this.images[this.img_name]
+        if (!image) {
+
+            var self = this;
+            log ('path: ' + this.getPath())
+
+            var $img = $t('img')
+                .attr('src', this.getPath())
+                .addClass('burns-image current')
+                .load (function (event) {
+                    log ("image load complete")
+                    self.$burns_layer
+                        .append(this);
+                    var burns_image = new BurnsImage(this)
+                    self.images[burns_image.img_name] = burns_image
+                    log ("set Burns image (" + burns_image.img_name + ") in self.images")
+                    burns_image
+                        .setState('init')
+                        .activate()
+                    // self.setState('init');
+//                    self.activate_image();
+                    log ("calling update state table from initialize impage")
+                    self.update_state_table()
+                })
+
+        }
+        else {
+            image.activate();
+        }
+
+    },
+
+    cache_configs:function () {
+        var key = 'klm_configs';
+        localStorage.setItem(key, JSON.stringify(this.data));
+
+    },
+
+    remove_image: function () {
+        var image = this.images[this.img_name]
+        log ("preparing to delete: " + this.img_name)
+        if (!image) {
+            log (" BurnsImage not found for: " + this.image_name)
+            return;
+        }
+        image.$img.hide();
+        // delete this.
+    },
+
+    initialize_UI: function () {
+        var self = this;
+        
+        $('button').button()
+        $('input#zoom-factor').val(this.zoom_factor);
+        $('input#img-name')
+            .val(this.img_name)
+            .change (function (event) {
+
+                img_name = $(this).val();
+                self.initialize_image(img_name);
+            })
+
+    
+        $('#do-init').click (function (event) {
+            self.setState('init');
+        })
+    
+        $('#do-final').click (function (event) {
+            self.setState('final');
+        })
+    
+        $('#do-burns').click (function (event) {
+            self.animate();
+        })
+
+    },
+    
+    get_config_data: function () {
+        log ("Animator get_config_data - image_name: " + this.img_name)
+        var image = this.get_current_image();
+        if (!image) {
+            log ("image not found for " + this.image_name)
+        }
+        return image.get_config_data()
+    },
 
     showState: function () {
-        log (this.img_name);
-        var pos = this.$img.position();
-        log (stringify ({
-//            name: this.$img.attr('src'),
-            top: pos.top,
-            left: pos.left,
-            height: this.$img.height(),
-            width: this.$img.width()
-        }))
+        var image = this.get_current_image().showState();
     },
 
     getPath: function (name) {
@@ -149,51 +234,33 @@ var BurnsAnimator = Class.extend({
     a state obj?
     */
     setState: function (state) {
-//        log ("set state: " + this.img_name + " (" + state + ")")
-       var data;
-       // log (stringify(BURNS_DATA))
-       try {
-           data = this.get_config_data()[state]
-//           log ("setState data - " + stringify(data));
-       } catch (error) {
-         log ("setState Error: could not get data for " + name);
-         this.$img.css ({left: 0, top: 0, width: '', height: ''})
-         return;
-       }
-
-       this.$img.css(data);
-
+        var image = this.get_current_image().setState(state);
     },
 
     animate: function (name) {
-        this.setState('init');
-        var name = $('#img-name').val()
-        var final_state = this.get_config_data().final
+        var image = this.get_current_image();
+        image.setState('init');
+        var final_state = image.get_config_data().final
+        var self = this;
         // this.$img.css({opacity:0})
         // rotateAnimation(this.$img, 5)
-        this.$img.animate (final_state, this.animation_duration, function () {
-            $CARD.trigger('klm:burns-animation-done')
+        image.$img.animate (final_state, this.animation_duration, function () {
+            $CARD.trigger('klm:burns-animation-done', this)
         })
     },
 
     saveState: function(state) {
         log ("saveState = " + state)
 
+        var image = this.get_current_image();
+
         if (state == 'init' || state == 'final') {
-            var pos = this.$img.position();
-            BURNS_DATA[this.img_name][state] = {
-                left: pos.left,
-                top: pos.top,
-                height: this.$img.height(),
-                width: this.$img.width()
-            }
-
-            log ("position: " + stringify(this.$img.position()))
-
+            image.saveState(state)
         }
         log ('Updated ' + state + ' config for ' + this.img_name);
         log (stringify(BURNS_DATA[this.img_name][state]))
         $('#burns-data').html("BURNS_DATA = " + stringify(BURNS_DATA))
+        this.update_state_table()
     },
 
     convert_config: function () {
@@ -232,6 +299,43 @@ var BurnsAnimator = Class.extend({
     dump_config: function () {
         console.log("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
         log (stringify (BURNS_DATA));
+    },
+
+    update_state_table:function () {
+        log("update_state_table")
+        var $tbody = $('#state-table').find('tbody')
+         $tbody.html('')
+        log ("about to get config data")
+
+        var config_data = this.get_config_data();
+        log ("about to show config data")
+        log(stringify(config_data))
+        $(['top', 'left', 'height', 'width', 'opacity']).each (function (i, attr) {
+//            log ('attr: ' + attr)
+//            log (" - "+ config_data['init'][attr])
+            var row = $t('tr')
+                .append($t('td')
+                    .attr('id', attr)
+                    .html(attr))
+                .append($t('td')
+                    .html($t('input')
+                        .attr('type', 'text')
+                        .attr('class', 'init')
+                        .change(function (event) {
+                            log ("CHANGE!")
+                        })
+                        .val(config_data['init'][attr])))
+                .append($t('td')
+                    .html($t('input')
+                        .attr('class', 'final')
+                        .change(function (event) {
+                            log ("CHANGE!")
+                        })
+                        .val(config_data['final'][attr])))
+                .appendTo($tbody)
+        })
+
+        log (" .... update_state_table done")
     }
 
 })
@@ -256,9 +360,28 @@ function populateCatalog() {
                     .html(name))
                 .click(function () {
                     BURNS.initialize_image(name)
+                    $items.children().removeClass('current')
+                    $(this).addClass('current')
                 }))
 
     })
+
+    $('#catalog-items').sortable({
+        change: function (event, ui) {
+//            log ("sortable change")
+        },
+        stop: function (event, ui) {
+            log ("sortable stop")
+            var sorted_data = {}
+            sorted_data['template'] = BURNS_DATA['template']
+            $('#catalog-items').find('img').each (function (i, img) {
+                var img_name = $(img).attr('src').replace ('images/','').replace('.jpg','')
+                sorted_data[img_name] = BURNS_DATA[img_name]
+            })
+            BURNS_DATA = sorted_data
+            $('#burns-data').html("BURNS_DATA = " + stringify(sorted_data))
+        }
+    });
 
     log ("catalog populated")
 

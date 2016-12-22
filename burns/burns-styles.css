@@ -9,8 +9,8 @@ body {
 }
 
 #card {
-    position:absolute;
-    top:100px;
+    position:relative;
+    /*top:100px;*/
     left:100px;
 	background:white;
 	border:black solid 1px;
@@ -31,11 +31,27 @@ body {
 	text-align:left;
 }
 
-
-
-#controls {
+#burns-layer {
     position:absolute;
-    top:20px;
+    background-color:white;
+    width:800px;
+    height:500px;
+    z-index:5;
+}
+
+.burns-image {
+    position:absolute;
+    border:thick solid transparent;
+}
+
+.burns-image.current {
+
+    border-color:red;
+}
+
+#top-controls {
+    position:relative;
+    /*top:20px;*/
     left:100px;
     width:800px;
     border:0 red solid;
@@ -81,8 +97,9 @@ body {
 }
 
 #bottom-controls {
-    position:absolute;
-    top:620px;
+    position:relative;
+    /*top:620px;*/
+    top:10px;
     left:100px;
     width:800px;
     text-align:center;
@@ -92,26 +109,28 @@ body {
     margin:0 20px
 }
 
-
-
-#catalog {
-    position:absolute;
-    top:670px;
+#burns-tabs {
+    position:relative;
+    /*top:670px;*/
+    top:20px;
     left:100px;
     width:800px;
-    height:130px;
+}
+
+.ui-tabs .ui-tabs-nav .ui-tabs-anchor {
+    padding:3px 15px;
+}
+
+#catalog {
+    position:relative;
+    /*top:670px;*/
+/*    left:100px;
+    width:800px;*/
+
+    height:110px;
     border:black solid thin;
     overflow-x:scroll;
     overflow-y:hidden;
-}
-
-
-#burns-layer {
-    position:absolute;
-    background-color:white;
-    width:800px;
-    height:500px;
-    z-index:5;
 }
 
 ul#catalog-items {
@@ -125,10 +144,14 @@ ul#catalog-items {
 
 #catalog-items li {
     display:inline-block;
-    text_align:left;
+    text-align:center;
     padding:1px;
     margin:0;
-    height:75px;
+    height:79px;
+}
+
+#catalog-items li.current {
+    border:red solid 2px;
 }
 
 #catalog-items img {
