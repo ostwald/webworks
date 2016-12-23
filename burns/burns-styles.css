@@ -39,14 +39,43 @@ body {
     z-index:5;
 }
 
-.burns-image {
+
+
+.burns-wrap {
+    border:green 2px solid;
+    opacity:.5;
     position:absolute;
-    border:thick solid transparent;
+    padding:1px;
+    margin:0;
+    height:auto;
+    width:auto;
+}
+
+.burns-wrap.current {
+    border-color:red;
+    opacity:1.0;
+}
+
+.burns-wrap button {
+    padding:2px 3px;
+    min-width:20px;
+}
+
+.burns-wrap .image-closer {
+    position:absolute;
+    top:5px;
+    right:5px;
 }
 
 .burns-image.current {
+    border-color:pink;
+}
 
-    border-color:red;
+.burns-image {
+    position:relative;
+    border:thin solid transparent;
+    height:100%;
+    width:100%;
 }
 
 #top-controls {

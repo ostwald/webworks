@@ -89,63 +89,13 @@
 
 
 </body>
-<script>
-/** BURNS LOCAL INITS **/
 
-// ------- button handlers -------------
+<script>
 var $CARD = $('#card'); // this should be a global, defined higher in food chain
 var BURNS = new BurnsAnimator();
-
-$('#burns-tabs').tabs({active:0});
-
-$('button#set-init-state')
-    .button()
-    .css({float: 'left'})
-    .click (function (event) {
-        BURNS.saveState('init');
-    })
-
-$('button#set-final-state')
-    .button()
-    .css({float: 'right'})
-    .click (function (event) {
-        BURNS.saveState('final');
-    })
-
-$('button#do-dump')
-    .button()
-    .click(function () {
-        BURNS.dump_config();
-    })
-
-$('#remove-image').click (function (event) {
-    BURNS.remove_image();
-})
-
-$('#zoom-in').click (function (event) {
-    log ("ZOOM IN");
-    var $img = BURNS.get_current_image().$img
-
-    $img.css({
-        width : $img.width() * $('#zoom-factor').val(),
-        height : $img.height() * $('#zoom-factor').val(),
-    })
-})
-
-$('#zoom-out').click (function (event) {
-    log ("ZOOM IN");
-    var $img = BURNS.get_current_image().$img
-
-    $img.css({
-        width : $img.width() / $('#zoom-factor').val(),
-        height : $img.height() / $('#zoom-factor').val()
-    })
-})
-
-populateCatalog();
-
-
 </script>
+
+<script src="local-handlers.js"></script>
 </html>
 
 

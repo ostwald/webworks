@@ -7,49 +7,68 @@ we read the burns-data file for burns_configs
 */
 
 /**
-initialized with a dom img
+initialized with a dom img inside a wrapper
+
+the img is styled at 100% width and height
+all position and dimensions applied to wrapper. img fills appropriately
 */
 var BurnsImage = Class.extend({
     init: function (img) {
         this.$img = $(img)
+        this.$wrapper = this.$img.closest('.burns-wrap')
         log ("BUrNS IMAGE for: " + this.$img.attr('src'));
         var self = this;
         this.img_name = $(img).attr('src').replace ('images/','').replace('.jpg','')
-        this.$img
+        this.$wrapper
             .draggable()
             .click (function (event) {
                 log ('- ' + self.img_name + ' clicked')
                 BURNS.initialize_image(self.img_name)
                 self.showState ()
             })
+            .append ($t('button')
+                .attr('type', 'button')
+                .addClass('image-closer')
+                .html('x')
+                .button())
+    },
+
+    hide: function () {
+        this.$wrapper.hide();
+    },
+
+    show: function () {
+        this.$wrapper.show();
     },
 
     activate: function () {
         log ('activating : ' + this.img_name)
-        BURNS.$burns_layer.find('img').removeClass('current')
-        this.$img.show().addClass('current')
+        BURNS.$burns_layer.find('.burns-wrap').removeClass('current')
+        this.$wrapper.show().addClass('current')
         return this;
     },
 
     setState: function (state) {
         log ("set state: " + this.img_name + " (" + state + ")")
-       var data;
-       // log (stringify(BURNS_DATA))
-       try {
+        var data;
+        // log (stringify(BURNS_DATA))
+        try {
            data = this.get_config_data()[state]
 //           log ("setState data - " + stringify(data));
-       } catch (error) {
-         log ("setState Error: could not get data for " + name);
-         this.$img.css ({left: 0, top: 0, width: '', height: ''})
-         return;
-       }
-       this.$img.css(data);
+        } catch (error) {
+            log ("setState Error: could not get data for " + name);
+            this.$img.css ({left: 0, top: 0, width: '', height: ''})
+            return;
+        }
+
+        this.$wrapper.css(data);
+
        return this;
     },
 
     saveState: function (state) {
         log ("image saveState")
-        var pos = this.$img.position();
+        var pos = this.$wrapper.position();
         BURNS_DATA[this.img_name][state] = {
             left: pos.left,
             top: pos.top,
@@ -63,7 +82,7 @@ var BurnsImage = Class.extend({
 
     showState: function () {
         log (this.img_name);
-        var pos = this.$img.position();
+        var pos = this.$wrapper.position();
         log (stringify ({
 //            name: this.$img.attr('src'),
             top: pos.top,
@@ -97,6 +116,21 @@ var BurnsImage = Class.extend({
         return data;
     },
 
+    zoom_in: function (zoom_factor) {
+        zoom_factor = zoom_factor || 1.2;
+        this.$wrapper.css({
+            width : this.$wrapper.width() * zoom_factor,
+            height : this.$wrapper.height() * zoom_factor,
+        })
+    },
+    zoom_out: function (zoom_factor) {
+        zoom_factor = zoom_factor || 1.2;
+        this.$wrapper.css({
+            width : this.$wrapper.width() / zoom_factor,
+            height : this.$wrapper.height() / zoom_factor,
+        })
+    }
+
 });
 
 
@@ -110,14 +144,14 @@ var BurnsAnimator = Class.extend({
         this.animation_duration = 5000;
         this.img_ext = '.jpg'
         this.$burns_layer = $('#burns-layer')
-        this.initialize_UI();
+//        this.initialize_UI();
         $CARD.append(this.$burns_layer)
         this.images = {}
+        this.img_name = null;
         if (img_name)
-            this.initialize_image(this.img_name);
+            this.initialize_image(img_name);
 
     },
-
 
     get_current_image: function () {
         return this.images[this.img_name];
@@ -146,15 +180,16 @@ var BurnsAnimator = Class.extend({
                 .load (function (event) {
                     log ("image load complete")
                     self.$burns_layer
-                        .append(this);
+                        .append($t('div')
+                            .addClass('burns-wrap')
+                            .html(this));
                     var burns_image = new BurnsImage(this)
-                    self.images[burns_image.img_name] = burns_image
+                         .setState('init')
+                         .activate()
                     log ("set Burns image (" + burns_image.img_name + ") in self.images")
-                    burns_image
-                        .setState('init')
-                        .activate()
-                    // self.setState('init');
-//                    self.activate_image();
+                    self.images[burns_image.img_name] = burns_image
+
+                    self.current_image = burns_image;
                     log ("calling update state table from initialize impage")
                     self.update_state_table()
                 })
@@ -179,11 +214,11 @@ var BurnsAnimator = Class.extend({
             log (" BurnsImage not found for: " + this.image_name)
             return;
         }
-        image.$img.hide();
+        image.hide();
         // delete this.
     },
 
-    initialize_UI: function () {
+/*    initialize_UI: function () {
         var self = this;
         
         $('button').button()
@@ -209,7 +244,7 @@ var BurnsAnimator = Class.extend({
             self.animate();
         })
 
-    },
+    },*/
     
     get_config_data: function () {
         log ("Animator get_config_data - image_name: " + this.img_name)
@@ -244,7 +279,7 @@ var BurnsAnimator = Class.extend({
         var self = this;
         // this.$img.css({opacity:0})
         // rotateAnimation(this.$img, 5)
-        image.$img.animate (final_state, this.animation_duration, function () {
+        image.$wrapper.animate (final_state, this.animation_duration, function () {
             $CARD.trigger('klm:burns-animation-done', this)
         })
     },
