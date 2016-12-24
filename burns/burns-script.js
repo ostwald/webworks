@@ -31,6 +31,55 @@ var BurnsImage = Class.extend({
                 .addClass('image-closer')
                 .html('x')
                 .button())
+            .append ($t('img')
+                .attr('src', '../assets/se-grab.png')
+                .addClass('image-se')
+                .css({
+                    'position': 'absolute',
+                    height:'20px',
+                    width: '20px'
+                })
+                // .html('?')
+//                .button()
+                .draggable( {
+                    start:function (event, ui) {
+                        log ("start")
+                        self.$wrapper
+                            .data('width', self.$wrapper.width())
+                            .data('height', self.$wrapper.height())
+                    },
+                    drag: function (event, ui) {
+//                        log ('drag')
+
+                        var delta_x = ui.position.left - ui.originalPosition.left
+                        var delta_y = ui.position.top - ui.originalPosition.top
+//                        log ("- deltas  x: " + delta_x + ", y: " + delta_y);
+
+                        var init_width = self.$wrapper.data('width');
+                        var init_height = self.$wrapper.data('height');
+
+                        log ("- init width: " + init_width)
+//                        log ("- init height: " + init_height)
+
+                        self.$wrapper.css({
+                            width : init_width + delta_x,
+//                            height : init_height + delta_y
+                            height : init_height + (delta_x * init_height / init_width)
+                        })
+
+                        //log ('- new: width: ' + self.$wrapper.width() + ',  height: ' + self.$wrapper.height())
+                    },
+                    stop:function (event, ui) {
+                        log ("stop")
+//                        console.log(ui)
+                        $(event.target).css({
+                            top : '',
+                            left : '',
+                            background:'transparent'
+                        })
+
+                    },
+                }))
     },
 
     hide: function () {
