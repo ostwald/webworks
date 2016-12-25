@@ -87,7 +87,7 @@ function init_step(step) {
             log ("STEP: " + SPIN_NUM);
             setTimeout (function () {
                 try {
-                    BURNS.initialize_image ('k_blowing');
+                    BURNS.set_current_image ('k_blowing');
                     BURNS.$burns_layer.show()
                     BURNS.$img.animate({
                         opacity:0.3
@@ -220,7 +220,7 @@ function do_burns (images) {
                 }, 8000)
             }
             var image = images[img_cnt]
-            BURNS.initialize_image (image);
+            BURNS.set_current_image (image);
             BURNS.$burns_layer.show()
             BURNS.animate()
             img_cnt++;

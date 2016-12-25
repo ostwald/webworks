@@ -7,7 +7,11 @@ we read the burns-data file for burns_configs
 */
 
 /**
-initialized with a dom img inside a wrapper
+initialized with a dom img (which is inside a wrapper)
+
+<div#burns-wrap>
+    <img src=../>
+</div>
 
 the img is styled at 100% width and height
 all position and dimensions applied to wrapper. img fills appropriately
@@ -19,18 +23,29 @@ var BurnsImage = Class.extend({
         log ("BUrNS IMAGE for: " + this.$img.attr('src'));
         var self = this;
         this.img_name = $(img).attr('src').replace ('images/','').replace('.jpg','')
+
+        /*
+            the wrapper is draggable, responds to clicks, and contains the image.
+            it also contains control objects (e.g., for deletion and resizing)
+        */
         this.$wrapper
             .draggable()
             .click (function (event) {
-                log ('- ' + self.img_name + ' clicked')
-                BURNS.initialize_image(self.img_name)
-                self.showState ()
+                log ('- ' + self.img_name + ' BurnsImage clicked')
+                BURNS.set_current_image(self.img_name)
+                // self.showState ()
             })
             .append ($t('button')
                 .attr('type', 'button')
                 .addClass('image-closer')
                 .html('x')
-                .button())
+                .button()
+                .click (function (event) {
+                    event.preventDefault();
+                    log ("REMOVE")
+                    BURNS.remove_image();
+                    return false;
+                }))
             .append ($t('img')
                 .attr('src', '../assets/se-grab.png')
                 .addClass('image-se')
@@ -47,25 +62,30 @@ var BurnsImage = Class.extend({
                         self.$wrapper
                             .data('width', self.$wrapper.width())
                             .data('height', self.$wrapper.height())
+                            $(event.target).css({
+                                display:'none'
+                            })
                     },
                     drag: function (event, ui) {
 //                        log ('drag')
 
-                        var delta_x = ui.position.left - ui.originalPosition.left
-                        var delta_y = ui.position.top - ui.originalPosition.top
-//                        log ("- deltas  x: " + delta_x + ", y: " + delta_y);
-
                         var init_width = self.$wrapper.data('width');
                         var init_height = self.$wrapper.data('height');
 
-                        log ("- init width: " + init_width)
+                        var delta_x = ui.position.left - ui.originalPosition.left;
+                        var delta_y = ui.position.top - ui.originalPosition.top;
+                        var delta_y_aspect = delta_x * init_height / init_width;
+
+//                        log ("- init width: " + init_width)
 //                        log ("- init height: " + init_height)
 
                         self.$wrapper.css({
-                            width : init_width + delta_x,
+                            width :  init_width + delta_x,
 //                            height : init_height + delta_y
-                            height : init_height + (delta_x * init_height / init_width)
+                            height : self.$wrapper.data('height') + delta_y_aspect
                         })
+
+
 
                         //log ('- new: width: ' + self.$wrapper.width() + ',  height: ' + self.$wrapper.height())
                     },
@@ -75,7 +95,8 @@ var BurnsImage = Class.extend({
                         $(event.target).css({
                             top : '',
                             left : '',
-                            background:'transparent'
+                            background:'transparent',
+                            display:'block'
                         })
 
                     },
@@ -83,6 +104,7 @@ var BurnsImage = Class.extend({
     },
 
     hide: function () {
+        log ("image_hide ...")
         this.$wrapper.hide();
     },
 
@@ -130,7 +152,7 @@ var BurnsImage = Class.extend({
     },
 
     showState: function () {
-        log (this.img_name);
+        log ('SHOW_STATE: ' + this.img_name);
         var pos = this.$wrapper.position();
         log (stringify ({
 //            name: this.$img.attr('src'),
@@ -198,7 +220,7 @@ var BurnsAnimator = Class.extend({
         this.images = {}
         this.img_name = null;
         if (img_name)
-            this.initialize_image(img_name);
+            this.set_current_image(img_name);
 
     },
 
@@ -208,8 +230,8 @@ var BurnsAnimator = Class.extend({
 
     // instantiate an image if necessary, and then
     // side-effect sets this.img_name
-    initialize_image: function (img_name) {
-        // IMAGE SHOULD BE ON IT'S OWN DIV (BURNS)
+    set_current_image: function (img_name) {
+        log ("\nset_current_image: " + img_name)
         this.img_name = img_name || this.img_name;
 
         $('input#img-name')
@@ -217,37 +239,43 @@ var BurnsAnimator = Class.extend({
 
         this.$burns_layer.children('img').removeClass('current')
 
+        var self = this;
+
+        function finalize (burns_image) {
+            burns_image.activate()
+            // log ("set Burns image (" + burns_image.img_name + ") in self.images")
+            self.images[burns_image.img_name] = burns_image
+
+            self.current_image = burns_image;
+            self.update_state_table()
+            $CARD.trigger ("klm:current-image-change", burns_image)
+
+        }
+
         var image = this.images[this.img_name]
         if (!image) {
 
-            var self = this;
             log ('path: ' + this.getPath())
 
             var $img = $t('img')
                 .attr('src', this.getPath())
                 .addClass('burns-image current')
                 .load (function (event) {
-                    log ("image load complete")
+                    // log ("image load complete")
                     self.$burns_layer
                         .append($t('div')
                             .addClass('burns-wrap')
-                            .html(this));
-                    var burns_image = new BurnsImage(this)
+                            .html(this)); // this is the img which has been loaded
+                    var burns_image = new BurnsImage(this) // BurnsImage wraps the img
                          .setState('init')
-                         .activate()
-                    log ("set Burns image (" + burns_image.img_name + ") in self.images")
-                    self.images[burns_image.img_name] = burns_image
-
-                    self.current_image = burns_image;
-                    log ("calling update state table from initialize impage")
-                    self.update_state_table()
+                   finalize(burns_image)
                 })
-
         }
         else {
-            image.activate();
+//            image.activate();
+            finalize(image)
         }
-
+        log ("done initialize=image")
     },
 
     cache_configs:function () {
@@ -266,37 +294,9 @@ var BurnsAnimator = Class.extend({
         image.hide();
         // delete this.
     },
-
-/*    initialize_UI: function () {
-        var self = this;
-        
-        $('button').button()
-        $('input#zoom-factor').val(this.zoom_factor);
-        $('input#img-name')
-            .val(this.img_name)
-            .change (function (event) {
-
-                img_name = $(this).val();
-                self.initialize_image(img_name);
-            })
-
-    
-        $('#do-init').click (function (event) {
-            self.setState('init');
-        })
-    
-        $('#do-final').click (function (event) {
-            self.setState('final');
-        })
-    
-        $('#do-burns').click (function (event) {
-            self.animate();
-        })
-
-    },*/
     
     get_config_data: function () {
-        log ("Animator get_config_data - image_name: " + this.img_name)
+//        log ("Animator get_config_data - image_name: " + this.img_name)
         var image = this.get_current_image();
         if (!image) {
             log ("image not found for " + this.image_name)
@@ -386,14 +386,13 @@ var BurnsAnimator = Class.extend({
     },
 
     update_state_table:function () {
-        log("update_state_table")
+//        log("update_state_table")
         var $tbody = $('#state-table').find('tbody')
-         $tbody.html('')
-        log ("about to get config data")
+
+        $tbody.html('')
 
         var config_data = this.get_config_data();
-        log ("about to show config data")
-        log(stringify(config_data))
+
         $(['top', 'left', 'height', 'width', 'opacity']).each (function (i, attr) {
 //            log ('attr: ' + attr)
 //            log (" - "+ config_data['init'][attr])
@@ -419,56 +418,84 @@ var BurnsAnimator = Class.extend({
                 .appendTo($tbody)
         })
 
-        log (" .... update_state_table done")
     }
 
 })
 
-function populateCatalog() {
-    var $dom = $('#catalog')
-    var $items = $t('ul')
-        .attr ('id', 'catalog-items')
-        .appendTo($dom)
 
-    var names = Object.keys(BURNS_DATA);
-    // console.log (names)
-    $(names).each (function (i, name) {
-        // log ('- ' + BURNS.getPath(name))
-        if (name != 'template')
-            $items.append($t('li')
-                .html($t('img')
-                        .attr('src', BURNS.getPath(name))
-                        .css({height:'75px'}))
-                .append($t('div')
-                    .css({fontSize:'.85em'})
-                    .html(name))
-                .click(function () {
-                    BURNS.initialize_image(name)
-                    $items.children().removeClass('current')
-                    $(this).addClass('current')
-                }))
+var Catalog = Class.extend ({
 
-    })
+    init: function () {
+        this.$dom =  $('#catalog')
+        this.$items = $t('ul')
+            .attr ('id', 'catalog-items')
+            .appendTo(this.$dom)
 
-    $('#catalog-items').sortable({
-        change: function (event, ui) {
-//            log ("sortable change")
-        },
-        stop: function (event, ui) {
-            log ("sortable stop")
-            var sorted_data = {}
-            sorted_data['template'] = BURNS_DATA['template']
-            $('#catalog-items').find('img').each (function (i, img) {
-                var img_name = $(img).attr('src').replace ('images/','').replace('.jpg','')
-                sorted_data[img_name] = BURNS_DATA[img_name]
-            })
-            BURNS_DATA = sorted_data
-            $('#burns-data').html("BURNS_DATA = " + stringify(sorted_data))
+
+    },
+    populate: function () {
+        var names = Object.keys(BURNS_DATA);
+        // console.log (names)
+        var $items = this.$items;
+        $(names).each (function (i, name) {
+            // log ('- ' + BURNS.getPath(name))
+            if (name != 'template')
+                $items.append($t('li')
+                    .html($t('img')
+                            .attr('src', BURNS.getPath(name))
+                            .css({height:'75px'}))
+                    .append($t('div')
+                        .css({fontSize:'.85em'})
+                        .html(name))
+                    .click(function () {
+                        BURNS.set_current_image(name)
+                        $items.children().removeClass('current')
+                        $(this).addClass('current')
+                    }))
+
+        })
+
+        $items.sortable({
+            change: function (event, ui) {
+    //            log ("sortable change")
+            },
+            stop: function (event, ui) {
+                log ("sortable stop")
+                var sorted_data = {}
+                sorted_data['template'] = BURNS_DATA['template']
+                $('#catalog-items').find('img').each (function (i, img) {
+                    var img_name = $(img).attr('src').replace ('images/','').replace('.jpg','')
+                    sorted_data[img_name] = BURNS_DATA[img_name]
+                })
+                BURNS_DATA = sorted_data
+                $('#burns-data').html("BURNS_DATA = " + stringify(sorted_data))
+            }
+        });
+
+        return this;
+
+    },
+
+    set_current: function (event) {
+
+        log ("catalog.set_current");
+
+//        log (" self has " + this.$items.children().length + " items")
+
+        this.$items.children().removeClass('current')
+
+        var current_img = BURNS.get_current_image();
+        //        var current_img_name = current_img ? current_img.$img
+
+        if (current_img) {
+            var t_src = current_img.$img.attr('src');
+
+            this.$items.find("img[src='" + t_src + "']").closest('li').addClass('current');
+        } else {
+            log ("WARN: Current_img not set in set_current");
         }
-    });
 
-    log ("catalog populated")
-
-}
+    }
+})
 
 

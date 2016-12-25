@@ -49,11 +49,13 @@ body {
     margin:0;
     height:auto;
     width:auto;
+    z-index:1;
 }
 
 .burns-wrap.current {
     border-color:red;
     opacity:1.0;
+    z-index:3;
 }
 
 .burns-wrap button {
@@ -75,11 +77,12 @@ body {
     text-align:center;
     background:transparent;
     cursor:pointer;
+    opacity:.5;
 }
 
-.burns-image.current {
+/*.burns-image.current {
     border-color:pink;
-}
+}*/
 
 .burns-image {
     position:relative;

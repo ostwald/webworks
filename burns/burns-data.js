@@ -19,14 +19,14 @@ BURNS_DATA = {
   },
   "IMG_2275": {
     "init": {
-      "left": 617,
-      "top": -2,
+      "left": 400,
+      "top": 175,
       "height": 166,
       "width": 178
     },
     "final": {
-      "left": -24,
-      "top": 349,
+      "left": -72,
+      "top": -60,
       "height": 166,
       "width": 178
     }
@@ -47,16 +47,16 @@ BURNS_DATA = {
   },
   "IMG_2276": {
     "init": {
-      "left": -206,
-      "top": -5,
-      "height": 605,
-      "width": 922
+      "left": -62,
+      "top": 204,
+      "height": 282,
+      "width": 430
     },
     "final": {
-      "top": 0,
-      "left": 0,
-      "height": 420,
-      "width": 640
+      "left": -107,
+      "top": -11,
+      "height": 690,
+      "width": 1052
     }
   },
   "IMG_2277": {

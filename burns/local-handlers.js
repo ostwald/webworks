@@ -86,5 +86,9 @@ $('#zoom-out').click (function (event) {
 })
 */
 
-populateCatalog();
+CATALOG = new Catalog().populate();
+//populateCatalog();
+$CARD.on ("klm:current-image-change", function (event) {
+    CATALOG.set_current();
+});
 
