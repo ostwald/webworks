@@ -21,8 +21,12 @@ $('#do-final').click (function (event) {
     BURNS.setState('final');
 })
 
-$('#do-burns').click (function (event) {
+$('#do-animate').click (function (event) {
     BURNS.animate();
+})
+
+$('#do-animate-all').click (function (event) {
+    BURNS.animate(true);
 })
 
 $('#burns-tabs').tabs({active:0});
@@ -64,31 +68,9 @@ $('#zoom-out').click (function (event) {
 })
 
 
-/*
-$('#zoom-in').click (function (event) {
-    log ("ZOOM IN");
-    var $img = BURNS.get_current_image().$img
-
-    $img.css({
-        width : $img.width() * $('#zoom-factor').val(),
-        height : $img.height() * $('#zoom-factor').val(),
-    })
-})
-
-$('#zoom-out').click (function (event) {
-    log ("ZOOM IN");
-    var $img = BURNS.get_current_image().$img
-
-    $img.css({
-        width : $img.width() / $('#zoom-factor').val(),
-        height : $img.height() / $('#zoom-factor').val()
-    })
-})
-*/
-
 CATALOG = new Catalog().populate();
 //populateCatalog();
 $CARD.on ("klm:current-image-change", function (event) {
-    CATALOG.set_current();
+    CATALOG.set_current_item();
 });
 

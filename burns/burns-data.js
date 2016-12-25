@@ -33,16 +33,16 @@ BURNS_DATA = {
   },
   "IMG_2274": {
     "init": {
-      "left": -3,
+      "left": 519,
       "top": -1,
-      "height": 569,
-      "width": 853
+      "height": 183,
+      "width": 274
     },
     "final": {
-      "top": 0,
-      "left": 0,
-      "height": 683,
-      "width": 1024
+      "left": -131,
+      "top": 271,
+      "height": 355,
+      "width": 532
     }
   },
   "IMG_2276": {
