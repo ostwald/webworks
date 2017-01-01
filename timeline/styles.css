@@ -1,0 +1,32 @@
+body {
+    font-family:arial;
+}
+
+#timeline {
+    display:table-cell;
+    vertical-align:bottom;
+    position:relative;
+    width:800px;
+    height:500px;
+    border:thin black solid;
+    overflow:visible;
+    padding-bottom:13px;
+}
+
+.vertical-box {
+/*    float:left;*/
+    display:inline-block;
+    position:relative;
+    border:black solid thin;
+    background:lightyellow;
+}
+
+.axis-label {
+    position:absolute;
+    bottom:0px;
+    font-size:.8em;
+}
+
+.hor-axis-label {
+    bottom:0px;
+}
