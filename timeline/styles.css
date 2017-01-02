@@ -47,54 +47,85 @@ body {
     bottom:0px;
 }
 
+.timeline-title {
+    text-align:right;
+    margin:3px;
+    font-weight:bold;
+}
+
 #controls {
     position:relative;
-    text-alignment:center;
-    padding:10px;
+    text-align:center;
+    padding:10px 10px 0px 10px;
 }
 
     #controls button {
         padding:2px 3px;
         min-width:20px;
+        margin:3px;
     }
 
     #controls .ui-widget {
         font-size:.85em;
     }
 
-#year-control {
-    white-space:nowrap;
-    display:inline-block;
-}
+    #year-control, #month-control {
+        white-space:nowrap;
+        display:inline-block;
+    }
 
-#year-select-button {
-    position:relative;
-}
+    #year-select-button {
+        position:relative;
+    }
+
+    #month-control {
+        display:inline;
+        padding-left:25px;
+    }
 
 /* ROLL COMPARE */
-#rolls-table {
+
+#roll-compare {
+    border:green solid 0;
+    min-width:500px;
+    max-width:800px;
+
+}
+    #roll-compare #controls{
+        border:blue solid 0;
+        text-align:center;
+        padding-bottom:10px;
+    }
+
+.rc-table {
     background:gray;
     border-collapse:collapse;
-    min-width:400px;
+    width:100%;
 }
-    #rolls-table th,#rolls-table td {
+   .rc-table th, .rc-table td {
         background:white;
         border:black solid thin;
         padding:3px 5px;
         font-size:.85em;
     }
-    #rolls-table th {
+   .rc-table th {
         background:gray;
         color:white;
     }
-    #rolls-table td.right {
+   .rc-table td.right {
         text-align:right;
     }
-    #rolls-table td.center {
+   .rc-table td.center {
         text-align:center;
     }
+   .rc-table td.int {
+        text-align:right;
+        padding-right:10px;
+    }
 
-#roll-compare #month-control {
-    display:inline;
-    padding-left:25px;
+   .rc-table tr.totals td {
+        font-weight:bold;
+        font-size:1em;
+    }
+
 }

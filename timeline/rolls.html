@@ -13,45 +13,20 @@
     <script src="../js/moment.min.js"></script>
     <!--<script src="videoStorageData.json"></script>
     <script src="jloAlbumData.json"></script>-->
+    <script src="control-script.js"></script>
     <script src="rolls-script.js"></script>
 <title></title>
 </head>
 
 <body>
+
+<div style="float:right"><a id="timeline-link" href="">Timeline</a></div>
+
+<h1>Roll Comparison</h1>
 <div id="roll-compare">
-
-    <h1>Roll Comparison</h1>
-
-    <div id="controls">
-        <select style="display:none" id="library-1-select" class="lib-select">
-            <option value="">- lib -</option>
-        </select>
-
-        <div id="year-control">
-            <button type="button" id="prev-year">-</button>
-
-            <select id="year-select">
-                <option value="">- year -</option>
-            </select>
-            <button type="button" id="next-year">+</button>
-        </div>
-
-        <div id="month-control" style="border:red thin solid;">
-            <button type="button" id="prev-month">-</button>
-
-            <select id="month-select">
-                <option value="">- month -</option>
-            </select>
-            <button type="button" id="next-month">+</button>
-        </div>
-
-        <select  style="display:none" id="library-2-select" class="lib-select">
-            <option value="">- lib -</option>
-        </select>
-
-    </div>
-
-    <table id="rolls-table"></table>
+    <div id="controls"></div>
+    <table id="rolls-table" class="rc-table"></table>
+    <table id="year-summary-table" class="rc-table"></table>
 </div>
 
 </body>
@@ -59,9 +34,10 @@
     var CONTROL;
     $(function () {
         log ("hello world");
-
-        CONTROL = new Controller();
+        // NOTE: roll_compare must be instantiated before control
         ROLL_COMPARE = new RollCompare('media', 'purg')
+        // CONTROL = new Controller();
+        CONTROL = new RollController();
 
     })
 

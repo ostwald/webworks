@@ -13,125 +13,76 @@ function lib_data_path (lib) {
     return 'data/' + LIB_CONFIGS[lib]
 }
 
-var Controller = Class.extend ({
+var TimelineController = Controller.extend({
+
     init: function () {
-        this.lib = null;
-        var self=this;
-        for (var i=1;i<13;i++) {
-            $('select#month-select-OFF')
-                .append($t('option')
-                    .html(i<10 ? "0"+parseInt(i) : parseInt(i))
-                )
-                .selectmenu({
-                    width:'100px',
-                    change: function (event) {
-                        var val = $(this).val();
-                        if (!val) {
-                            return alert("please select a month")
-                        }
-                        log ("VAL: " + val)
-                    }
-                })
-                .hide()
-        }
-
-        for (var i=1997;i<=MAX_YEAR;i++) {
-            $('select#year-select')
-                .append($t('option')
-                    .html(parseInt(i))
-                )
-                .selectmenu({
-                    width:'120px',
-                    change: function (event) {
-                        var val = $(this).val();
-                        if (!val) {
-                            return alert("please select a year")
-                        }
-                        log ("VAL: " + val)
-                        for (var id in self.timelines) {
-                            self.timelines[id].render();
-                        }
-//                        self.render_timeline ()
-                    }
-                })
-        }
-
-        $('button#prev-year')
-            .button()
-            .click (function (event) {
-                log ("PREV_YEAR")
-                var year;
-                try {
-                    year = parseInt($('select#year-select').val())
-                } catch (error) {}
-                if (year > MIN_YEAR) {
-                    --year;
-                    log ("year now: " + year)
-                    $('select#year-select').val(year).selectmenu('refresh')
-                    for (var id in self.timelines) {
-                        self.timelines[id].render();
-                    }
-                }
-            })
-
-        $('button#next-year')
-            .button()
-            .click (function (event) {
-                log ("NEXT_YEAR")
-                var year;
-                try {
-                    year = parseInt($('select#year-select').val())
-                } catch (error) {}
-                if (year < MAX_YEAR) {
-                    year++;
-                    log ("year now: " + year)
-                    $('select#year-select').val(year).selectmenu('refresh')
-                    for (var id in self.timelines) {
-                        self.timelines[id].render();
-                    }
-                }
-            })
-
-        for (var key in LIB_CONFIGS) {
-            log ("-" + key)
-
-            $('select.lib-select').each(function (i, select) {
-                $(select).append($t('option')
-                    .html(key)
-                )
-            })
-        }
+        this._super()
 
         this.timelines = {
-            'timeline-1': new Timeline('#timeline-1', 'select#library-1-select'),
-            'timeline-2': new Timeline('#timeline-2', 'select#library-2-select'),
+            'timeline-1': new Timeline('purg', '#timeline-1', 'select#library-1-select'),
+            'timeline-2': new Timeline('media', '#timeline-2', 'select#library-2-select'),
         }
+
+        var self = this;
+        $('#rolls-link').click (function (event) {
+            event.preventDefault();
+            log ("rolls link click")
+            var url = "rolls.html?year=" + self.getYear() + "&month=" + self.getMonth();
+            log ("url: " + url)
+            location = url;
+            return false;
+        })
+
+        if  (PARAMS.year) {
+            this.setYear(PARAMS.year);
+            this.doAction()
+        }
+
+        log ("TimelineController instiated")
     },
 
-})
+    doAction: function (event) {
+        log ('TimelineController doAction - ');
+        if (event)
+            log (" - event target:" + event.target.id)
+        if (!event || event.target.id.indexOf('month') == -1) {
+
+            for (var id in this.timelines) {
+                this.timelines[id].render();
+            }
+        }
+
+    }
+
+});
 
 /* for now, hard-coding it to a year */
 var Timeline = Class.extend ({
-    init: function (dom, select, args) {
+    init: function (lib, dom, args) {
         args = args || {}
         log ("TIMELINE")
         this.$dom = $(dom)
-        this.$select = $(select)
+//        this.$select = $(select)
         this.year = args.year
         this.height = this.$dom.height();
         this.width = this.$dom.width();
         this.data = null;
-        this.lib = null;
-
-        this.initialize_select()
-    },
-
-    set_lib: function (lib) {
         this.lib = lib;
-        this.$select.val(lib).selectmenu('refresh')
+        $('#' + this.$dom.attr('id') + '-title')
+            .html(this.lib)
+            .css({
+                width:this.width
+            })
+
+//        this.initialize_select()
     },
 
-    initialize_select: function (current) {
+/*    set_lib: function (lib) {
+        this.lib = lib;
+        // this.$select.val(lib).selectmenu('refresh')
+    },*/
+
+/*    initialize_select_OFF: function (current) {
         log ('initialize_select')
         var self=this;
         for (var key in LIB_CONFIGS) {
@@ -149,7 +100,7 @@ var Timeline = Class.extend ({
                     }
                 })
         }
-    },
+    },*/
 
     getDateExtents: function  () {
         var dates = Object.keys(this.data)
@@ -291,3 +242,102 @@ function getTimelineData (url, callback) {
     })
 }
 
+// ------------------------
+
+var ControllerOff = Class.extend ({
+    init: function () {
+        this.lib = null;
+        var self=this;
+        for (var i=1;i<13;i++) {
+            $('select#month-select-OFF')
+                .append($t('option')
+                    .html(i<10 ? "0"+parseInt(i) : parseInt(i))
+                )
+                .selectmenu({
+                    width:'100px',
+                    change: function (event) {
+                        var val = $(this).val();
+                        if (!val) {
+                            return alert("please select a month")
+                        }
+                        log ("VAL: " + val)
+                    }
+                })
+                .hide()
+        }
+
+        for (var i=1997;i<=MAX_YEAR;i++) {
+            $('select#year-select')
+                .append($t('option')
+                    .html(parseInt(i))
+                )
+        }
+        $('select#year-select')
+            .selectmenu({
+                width:'120px',
+                change: function (event) {
+                    var val = $(this).val();
+                    if (!val) {
+                        return alert("please select a year")
+                    }
+                    log ("VAL: " + val)
+                    for (var id in self.timelines) {
+                        self.timelines[id].render();
+                    }
+//                        self.render_timeline ()
+                }
+            })
+
+        $('button#prev-year')
+            .button()
+            .click (function (event) {
+                log ("PREV_YEAR")
+                var year;
+                try {
+                    year = parseInt($('select#year-select').val())
+                } catch (error) {}
+                if (year > MIN_YEAR) {
+                    --year;
+                    log ("year now: " + year)
+                    $('select#year-select').val(year).selectmenu('refresh')
+                    for (var id in self.timelines) {
+                        self.timelines[id].render();
+                    }
+                }
+            })
+
+        $('button#next-year')
+            .button()
+            .click (function (event) {
+                log ("NEXT_YEAR")
+                var year;
+                try {
+                    year = parseInt($('select#year-select').val())
+                } catch (error) {}
+                if (year < MAX_YEAR) {
+                    year++;
+                    log ("year now: " + year)
+                    $('select#year-select').val(year).selectmenu('refresh')
+                    for (var id in self.timelines) {
+                        self.timelines[id].render();
+                    }
+                }
+            })
+
+        for (var key in LIB_CONFIGS) {
+            log ("-" + key)
+
+            $('select.lib-select').each(function (i, select) {
+                $(select).append($t('option')
+                    .html(key)
+                )
+            })
+        }
+
+        this.timelines = {
+            'timeline-1': new Timeline('#timeline-1', 'select#library-1-select'),
+            'timeline-2': new Timeline('#timeline-2', 'select#library-2-select'),
+        }
+    },
+
+})

@@ -11,16 +11,19 @@
     <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
     <script src="../js/base-script.js"></script>
     <script src="../js/moment.min.js"></script>
-    <!--<script src="videoStorageData.json"></script>
-    <script src="jloAlbumData.json"></script>-->
+
+    <script src="control-script.js"></script>
     <script src="timeline-script.js"></script>
 <title></title>
 </head>
 
 <body>
-<h1>TimeLIne</h1>
+<div style="float:right"><a id="rolls-link" href="#">Roll Compare</a></div>
+<h1>TimeLine</h1>
+<h3>Item Level</h3>
+<div>Items added on each date in a year. Hover to see date and number added.</div>
 
-<div id="timeline-1" class="timeline"></div>
+
 
 <div id="controls">
     <select id="library-1-select" class="lib-select">
@@ -51,6 +54,10 @@
 
 </div>
 
+<div id="timeline-1-title" class="timeline-title"></div>
+<div id="timeline-1" class="timeline"></div>
+
+<div id="timeline-2-title" class="timeline-title"></div>
 <div id="timeline-2" class="timeline"></div>
 
 
@@ -60,7 +67,8 @@
     $(function () {
         log ("hello world");
 
-        CONTROL = new Controller();
+        // CONTROL = new Controller();
+        CONTROL = new TimelineController();
 
 
     })
