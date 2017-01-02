@@ -11,8 +11,8 @@
     <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
     <script src="../js/base-script.js"></script>
     <script src="../js/moment.min.js"></script>
-    <!--<script src="videoStorageData.json"></script>-->
-    <script src="jloAlbumData.json"></script>
+    <!--<script src="videoStorageData.json"></script>
+    <script src="jloAlbumData.json"></script>-->
     <script src="timeline-script.js"></script>
 <title></title>
 </head>
@@ -22,16 +22,25 @@
 
 <div id="timeline"></div>
 
+<div id="controls">
+    <select id="library-select"></select>
+
+    <select id="year-select"></select>
+    <select id="month-select" style="display:none"></select>
+
+</div>
 <hr>
 <address></address>
 <!-- hhmts start --> Last modified: Sun Jan  1 02:41:20 MST 2017 <!-- hhmts end -->
 </body>
 <script>
+    var CONTROL;
     $(function () {
         log ("hello world");
-        // log(stringify (TIMELINE_DATA));
 
-        render()
+        CONTROL = new Controller();
+        CONTROL.set_lib('jlo');
+        CONTROL.render_timeline(2010);
 
     })
 
