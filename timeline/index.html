@@ -20,18 +20,40 @@
 <body>
 <h1>TimeLIne</h1>
 
-<div id="timeline"></div>
+<div id="timeline-1" class="timeline"></div>
 
 <div id="controls">
-    <select id="library-select"></select>
+    <select id="library-1-select" class="lib-select">
+        <option value="">- lib -</option>
+    </select>
 
-    <select id="year-select"></select>
-    <select id="month-select" style="display:none"></select>
+    <div id="year-control">
+        <button type="button" id="prev-year">-</button>
+
+        <select id="year-select">
+            <option value="">- year -</option>
+        </select>
+        <button type="button" id="next-year">+</button>
+    </div>
+
+    <div id="month-control" style="display:none;border:red thin solid;">
+        <button type="button" id="prev-month">-</button>
+
+        <select id="month-select">
+            <option value="">- month -</option>
+        </select>
+        <button type="button" id="next-month">+</button>
+    </div>
+
+    <select id="library-2-select" class="lib-select">
+        <option value="">- lib -</option>
+    </select>
 
 </div>
-<hr>
-<address></address>
-<!-- hhmts start --> Last modified: Sun Jan  1 02:41:20 MST 2017 <!-- hhmts end -->
+
+<div id="timeline-2" class="timeline"></div>
+
+
 </body>
 <script>
     var CONTROL;
@@ -39,8 +61,7 @@
         log ("hello world");
 
         CONTROL = new Controller();
-        CONTROL.set_lib('jlo');
-        CONTROL.render_timeline(2010);
+
 
     })
 

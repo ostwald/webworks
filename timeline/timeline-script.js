@@ -1,4 +1,6 @@
 var DATE_FORMAT = "YYYY-MM-DD";
+var MAX_YEAR = 2016
+var MIN_YEAR = 1997
 
 var LIB_CONFIGS = {
     'jlo' : 'jloAlbumData',
@@ -24,80 +26,129 @@ var Controller = Class.extend ({
                     width:'100px',
                     change: function (event) {
                         var val = $(this).val();
+                        if (!val) {
+                            return alert("please select a month")
+                        }
                         log ("VAL: " + val)
                     }
                 })
                 .hide()
         }
 
-        for (var i=1997;i<2017;i++) {
+        for (var i=1997;i<=MAX_YEAR;i++) {
             $('select#year-select')
                 .append($t('option')
                     .html(parseInt(i))
                 )
                 .selectmenu({
-                    width:'100px',
+                    width:'120px',
                     change: function (event) {
                         var val = $(this).val();
+                        if (!val) {
+                            return alert("please select a year")
+                        }
                         log ("VAL: " + val)
-                        self.render_timeline (val)
+                        for (var id in self.timelines) {
+                            self.timelines[id].render();
+                        }
+//                        self.render_timeline ()
                     }
                 })
         }
+
+        $('button#prev-year')
+            .button()
+            .click (function (event) {
+                log ("PREV_YEAR")
+                var year;
+                try {
+                    year = parseInt($('select#year-select').val())
+                } catch (error) {}
+                if (year > MIN_YEAR) {
+                    --year;
+                    log ("year now: " + year)
+                    $('select#year-select').val(year).selectmenu('refresh')
+                    for (var id in self.timelines) {
+                        self.timelines[id].render();
+                    }
+                }
+            })
+
+        $('button#next-year')
+            .button()
+            .click (function (event) {
+                log ("NEXT_YEAR")
+                var year;
+                try {
+                    year = parseInt($('select#year-select').val())
+                } catch (error) {}
+                if (year < MAX_YEAR) {
+                    year++;
+                    log ("year now: " + year)
+                    $('select#year-select').val(year).selectmenu('refresh')
+                    for (var id in self.timelines) {
+                        self.timelines[id].render();
+                    }
+                }
+            })
 
         for (var key in LIB_CONFIGS) {
-            $('select#library-select')
-                .append($t('option')
-//                    .val(LIB_CONFIGS[key])
+            log ("-" + key)
+
+            $('select.lib-select').each(function (i, select) {
+                $(select).append($t('option')
                     .html(key)
                 )
-                .selectmenu({
-                    width:'100px',
-                    change: function (event) {
-                        var val = $(this).val();
-                        log ("VAL: " + val)
-                        self.set_lib (val)
-                    }
-                })
+            })
+        }
 
+        this.timelines = {
+            'timeline-1': new Timeline('#timeline-1', 'select#library-1-select'),
+            'timeline-2': new Timeline('#timeline-2', 'select#library-2-select'),
         }
     },
 
-    set_lib: function (lib) {
-        this.lib = lib;
-    },
-
-    render_timeline: function (year) {
-        if (!this.lib)
-            throw ("render_timeline requires that lib is intialized")
-        var url = lib_data_path(this.lib) + '/' + year + '-01-01.json';
-        getTimelineData(url, function (resp) {
-            var timeline = new Timeline(resp, {year:year})
-            timeline.render();
-        })
-
-    }
 })
 
 /* for now, hard-coding it to a year */
 var Timeline = Class.extend ({
-    init: function (data, args) {
+    init: function (dom, select, args) {
+        args = args || {}
+        log ("TIMELINE")
+        this.$dom = $(dom)
+        this.$select = $(select)
         this.year = args.year
-        this.height = args.height || 500;
-        this.width = args.width || 800;
-        this.data = data
+        this.height = this.$dom.height();
+        this.width = this.$dom.width();
+        this.data = null;
+        this.lib = null;
 
-        this.start = args.start
-        if (!this.start && this.year) {
-            this.start = moment(this.year + "-01-01")
+        this.initialize_select()
+    },
+
+    set_lib: function (lib) {
+        this.lib = lib;
+        this.$select.val(lib).selectmenu('refresh')
+    },
+
+    initialize_select: function (current) {
+        log ('initialize_select')
+        var self=this;
+        for (var key in LIB_CONFIGS) {
+            this.$select
+                .selectmenu({
+                    width:'100px',
+                    change: function (event) {
+                        var val = $(this).val();
+                        if (!val) {
+                            return alert("please select a library")
+                        }
+                        log ("VAL: " + val)
+                        self.set_lib (val)
+                        self.render()
+                    }
+                })
         }
-        this.end = args.end
-        if (!this.end && this.year) {
-            this.end = moment(this.year + "-12-31")
-        }
-
-        // these should be optional args (like year)
-
     },
 
     getDateExtents: function  () {
@@ -110,34 +161,63 @@ var Timeline = Class.extend ({
         var end = moment(end_str, DATE_FORMAT)
         var days = Math.abs(end - start) / 60 / 60 / 24 /1000
 
-
+        var total = 0
         var max_height = 0
         for (var day in this.data) {
-            max_height = Math.max(max_height, this.data[day].length)
+            var num_items = this.data[day].length
+            max_height = Math.max(max_height, num_items)
+            total += num_items
         }
 
         return {
             start: start,
             end: end,
             days: days,
-            max_height: max_height
+            max_height: max_height,
+            total:total
         }
     },
+
     render: function () {
-        $('#timeline').html('')
+        if (!this.lib)
+            throw ("render_timeline requires that lib is intialized")
+        var year;
+        try {
+            year = parseInt($('select#year-select').val())
+        } catch (error) {}
+        if (year) {
+            this.start = moment(year + "-01-01")
+            this.end = moment(year + "-12-31")
+            var url = lib_data_path(this.lib) + '/' + year + '-01-01.json';
+            var lib = this.lib;
+            var self = this;
+            getTimelineData(url, function (resp) {
+                self.data = resp
+                self.update_dom(year);
+            })
+        }
+    },
+
+    update_dom: function (year) {
+        this.$dom.html('')
 
         var extents = this.getDateExtents();
-
-        log ("EXTENTS: " + stringify(extents))
+        // log ("EXTENTS: " + stringify(extents))
 
         var y_factor = this.height/extents.max_height;
 
         var start_date = this.start || extents.start
         var end_date = this.end || extents.end
 
-        var days = Math.abs(end_date - start_date) / (60 * 60 * 24)
+        var days = Math.abs(end_date - start_date) / (60 * 60 * 24 * 1000)
+        var day_px = Math.floor(this.width/(days+0));
+
+        log ("start_date: " + fmt(start_date));
+        log ("end_date: " + fmt(end_date));
+        log ("days: " + days);
+        log ("day_px: " + day_px);
+
         // add day for inclusive
-        var day_px = Math.floor(this.width/(days+1));
 
         var dt = start_date.clone()
 
@@ -152,7 +232,7 @@ var Timeline = Class.extend ({
                 height = count * y_factor;
             }
 
-            $('#timeline').append($t('div')
+            this.$dom.append($t('div')
                 .addClass('vertical-box')
                 .attr('title', key + ' - ' + count)
                 .css({
@@ -168,24 +248,29 @@ var Timeline = Class.extend ({
 
         $t('div')
 //            .html(fmt(extents.start))
-            .html(fmt(this.start))
+            .html(fmt(start_date))
             .addClass('axis-label')
             .css({left:0, bottom:0})
-            .appendTo($('#timeline'))
+            .appendTo(this.$dom)
 
         $t('div')
 //            .html(fmt(extents.end))
-            .html(fmt(this.end))
+            .html(fmt(end_date))
             .addClass('axis-label')
             .css({right:0, bottom:0})
-            .appendTo($('#timeline'))
+            .appendTo(this.$dom)
 
         $t('div')
             .html(extents.max_height)
             .addClass('axis-label')
             .css({left:0,top:0})
-            .appendTo($('#timeline'))
+            .appendTo(this.$dom)
 
+            $t('div')
+                .html(parseInt(extents.total))
+                .addClass('axis-label')
+                .css({right:0,top:0})
+                .appendTo(this.$dom)
     }
 
 })

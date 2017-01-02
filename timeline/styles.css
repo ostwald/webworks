@@ -2,31 +2,99 @@ body {
     font-family:arial;
 }
 
-#timeline {
+.timeline {
     display:table-cell;
-    vertical-align:bottom;
     position:relative;
     width:800px;
-    height:500px;
+    height:200px;
     border:thin black solid;
     overflow:visible;
     padding-bottom:13px;
+    text-align:center;
+}
+
+#timeline-1, #timeline-2 {
+    vertical-align:bottom;
+}
+
+.lib-select {
+
 }
 
 .vertical-box {
 /*    float:left;*/
     display:inline-block;
     position:relative;
-    border:black solid thin;
-    background:lightyellow;
+    border:black solid 0;
+}
+
+#timeline-1 .vertical-box {
+    background:green;
+}
+
+#timeline-2 .vertical-box {
+    background:blue;
 }
 
 .axis-label {
     position:absolute;
     bottom:0px;
     font-size:.8em;
+    margin:2px;
 }
 
 .hor-axis-label {
     bottom:0px;
+}
+
+#controls {
+    position:relative;
+    text-alignment:center;
+    padding:10px;
+}
+
+    #controls button {
+        padding:2px 3px;
+        min-width:20px;
+    }
+
+    #controls .ui-widget {
+        font-size:.85em;
+    }
+
+#year-control {
+    white-space:nowrap;
+    display:inline-block;
+}
+
+#year-select-button {
+    position:relative;
+}
+
+/* ROLL COMPARE */
+#rolls-table {
+    background:gray;
+    border-collapse:collapse;
+    min-width:400px;
+}
+    #rolls-table th,#rolls-table td {
+        background:white;
+        border:black solid thin;
+        padding:3px 5px;
+        font-size:.85em;
+    }
+    #rolls-table th {
+        background:gray;
+        color:white;
+    }
+    #rolls-table td.right {
+        text-align:right;
+    }
+    #rolls-table td.center {
+        text-align:center;
+    }
+
+#roll-compare #month-control {
+    display:inline;
+    padding-left:25px;
 }

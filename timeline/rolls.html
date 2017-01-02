@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+
+
+    <title>Timeline</title>
+    <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+    <script src="../js/base-script.js"></script>
+    <script src="../js/moment.min.js"></script>
+    <!--<script src="videoStorageData.json"></script>
+    <script src="jloAlbumData.json"></script>-->
+    <script src="rolls-script.js"></script>
+<title></title>
+</head>
+
+<body>
+<div id="roll-compare">
+
+    <h1>Roll Comparison</h1>
+
+    <div id="controls">
+        <select style="display:none" id="library-1-select" class="lib-select">
+            <option value="">- lib -</option>
+        </select>
+
+        <div id="year-control">
+            <button type="button" id="prev-year">-</button>
+
+            <select id="year-select">
+                <option value="">- year -</option>
+            </select>
+            <button type="button" id="next-year">+</button>
+        </div>
+
+        <div id="month-control" style="border:red thin solid;">
+            <button type="button" id="prev-month">-</button>
+
+            <select id="month-select">
+                <option value="">- month -</option>
+            </select>
+            <button type="button" id="next-month">+</button>
+        </div>
+
+        <select  style="display:none" id="library-2-select" class="lib-select">
+            <option value="">- lib -</option>
+        </select>
+
+    </div>
+
+    <table id="rolls-table"></table>
+</div>
+
+</body>
+<script>
+    var CONTROL;
+    $(function () {
+        log ("hello world");
+
+        CONTROL = new Controller();
+        ROLL_COMPARE = new RollCompare('media', 'purg')
+
+    })
+
+</script>
+</html>
