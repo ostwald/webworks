@@ -1,24 +1,8 @@
-var DATE_FORMAT = "YYYY-MM-DD";
-var MAX_YEAR = 2016
-var MIN_YEAR = 1997
-var ROLL_ATTRS = ['name', 'id', 'start', 'end', 'size', 'comment']
-
-var LIB_CONFIGS = {
-    'jlo' : 'jloAlbumData',
-    'video' : 'videoStorageData',
-    'purg': 'purgAlbumData',
-    'media': 'mediaAlbumData'
-}
-
-function lib_data_path (lib) {
-    return 'data/' + LIB_CONFIGS[lib]
-}
-
-
 
 var RollController = Controller.extend({
-    init: function () {
+    init: function (lib1, lib2) {
         this._super();
+
         var self = this;
         $('#timeline-link').click (function (event) {
             log ("timeline link click")
@@ -34,6 +18,9 @@ var RollController = Controller.extend({
             return false;
         })
 
+        // Here is where to instantiate ROLL COMPARE
+        this.rollCompare = new RollCompare(lib1, lib2)
+        log ("DOOM: " + this.controls.$dom.attr('id'))
         log ("RollController initiated")
     },
 
@@ -48,10 +35,10 @@ var RollController = Controller.extend({
             log ("year is not defined")
         else if (!this.getMonth()) {
             log ("month is not defined")
-            ROLL_COMPARE.render_summary(this.getYear());
+            this.rollCompare.render_summary(this.getYear());
             }
         else {
-            ROLL_COMPARE.render();
+            this.rollCompare.render();
         }
 
     }
@@ -173,30 +160,23 @@ var RollCompare = Class.extend ({
             }
          }
 
-
-
-         log ("DONE")
-         log (stringify(summary))
+//         log ("DONE")
+//         log (stringify(summary))
          return summary;
     },
 
     render_summary: function (year) {
         log ('render_summary')
         var summary_data = this.summarize_data (year);
-        log ("summarized ...")
 
         $('#rolls-table').hide();
         var $dom = $('#year-summary-table').show();
 
         var mom = moment('2001-6-01')
-        log ("June?? " + mom.format('MMMM'))
-        log ("June?? " + moment('2011-06-01').format("MMMM"))
 
         var $header = $t('tr').addClass('header')
         $dom.html($header)
-        var lib1 = 'purg';
-        var lib2 = 'media'
-        var summary_cols = ['', lib1 + '_rolls', lib2 + '_rolls', lib1 + '_items', lib2 + '_items']
+        var summary_cols = ['', this.lib1 + '_rolls', this.lib2 + '_rolls', this.lib1 + '_items', this.lib2 + '_items']
         $(summary_cols).each (function (i, col) {
             $header.append($t('th').html(col))
         })
@@ -206,8 +186,8 @@ var RollCompare = Class.extend ({
             var mom = moment('2011-' + i < 10 ? i.toString() : '0'+ i.toString())
             var month = mom.format("MMMM")
             var month_str = mom.format("MM")
-            var lib1_data = summary_data[lib1][month]
-            var lib2_data = summary_data[lib2][month]
+            var lib1_data = summary_data[this.lib1][month]
+            var lib2_data = summary_data[this.lib2][month]
             var self = this;
             var $row = $t('tr')
                 .attr('id', month)
@@ -229,12 +209,11 @@ var RollCompare = Class.extend ({
         }
         var footer = $t('tr').addClass('totals')
             .append($t('td'))
-            .append($t('td').addClass('int').html(summary_data[lib1].totals.roll_count))
-            .append($t('td').addClass('int').html(summary_data[lib2].totals.roll_count))
-            .append($t('td').addClass('int').html(summary_data[lib1].totals.item_count))
-            .append($t('td').addClass('int').html(summary_data[lib2].totals.item_count))
+            .append($t('td').addClass('int').html(summary_data[this.lib1].totals.roll_count))
+            .append($t('td').addClass('int').html(summary_data[this.lib2].totals.roll_count))
+            .append($t('td').addClass('int').html(summary_data[this.lib1].totals.item_count))
+            .append($t('td').addClass('int').html(summary_data[this.lib2].totals.item_count))
             .appendTo($dom)
-
     },
 
     compile_data: function () {
@@ -275,6 +254,9 @@ var RollCompare = Class.extend ({
         // sort first by date, then by name
         comp_recs.sort (function (a,b) {
             if (a.start == b.start) {
+                if (a.name == b.name) {
+                    return parseInt(a.size) > parseInt(b.size)
+                }
                 return a.name.localeCompare(b.name)
             }
            return a.start.localeCompare(b.start)
@@ -329,6 +311,8 @@ var RollCompare = Class.extend ({
         for (var j=0;j<records.length;j++) {
             var record = records[j]
             var $row = $t('tr')
+                .data('lib', record.lib)
+                .addClass(record.match ? 'match' : '')
                 .attr('id', record.id)
                 .append($t('td').addClass('center').html(record.start))
 //                .append($t('td').html(record.id))
@@ -338,8 +322,6 @@ var RollCompare = Class.extend ({
                 .append($t('td').html(record.lib == this.lib2 ? 'X' : '-').addClass('center'))
                 .appendTo(this.$dom)
 
-            if (record.match)
-                $row.css ({color:'gray'})
         }
         var footer = $t('tr').addClass('totals')
             .append($t('td'))
@@ -350,6 +332,27 @@ var RollCompare = Class.extend ({
             .append($t('td').addClass('center').html(compiled_data.stats[this.lib2]))
 
             .appendTo(this.$dom)
+
+        var self = this;
+        CONTROL.controls.$dom.append($t('div')
+            .html("toggle matches")
+            .css({
+                position: 'absolute',
+                bottom: 5,
+                right: 5,
+                fontSize:'.85em',
+            })
+//            .click (function (event) {
+//                log ("WHAT??")
+//                self.$dom.find('tr.match').each (function (i, li) {
+//                    $(li).toggle();
+//                })
+//            })
+            .click (function (event) {
+                log ("WHAT??")
+                self.$dom.find('tr.match').toggle();
+            })  )
+
     },
 
 })
@@ -377,154 +380,4 @@ var RollData = Class.extend({
 
 })
 
-function fmt (mom) {
-    return mom.format(DATE_FORMAT)
-}
 
-
-function getJsonData (url, callback) {
-    log ("making call ... " + url)
-    $.getJSON(url, function (resp) {
-//            log ("resp is a " + typeof resp);
-            if (callback)
-                callback(resp)
-    })
-}
-
-
-// ------------------------
-var ControllerOFF = Class.extend ({
-    init: function () {
-        var self=this;
-        this.$month_select = $('select#month-select');
-        for (var i=1;i<13;i++) {
-            this.$month_select
-                .append($t('option')
-                    .html(month2str(i))
-                )
-        }
-        this.$month_select
-            .selectmenu({
-                width:'100px',
-                change: function (event) {
-//                    log ("month-select change!")
-                    var val = $(this).val();
-                    if (!val) {
-                        return alert("please select a month")
-                    }
-//                    log ("VAL: " + val)
-//                    log ("other: " + parseInt($('select#month-select').val()))
-                    ROLL_COMPARE.render()
-                }
-            })
-
-        $('button#prev-month')
-            .button()
-            .click (function (event) {
-//                log ("PREV_month")
-                var month;
-                try {
-                    month = parseInt(self.$month_select.val())
-                } catch (error) {}
-                if (month > 1) {
-                    month = month - 1;
-//                    log ("month now: " + month)
-                    self.$month_select.val(month2str(month)).selectmenu('refresh')
-                    ROLL_COMPARE.render()
-                }
-                else {
-                    self.$month_select.val('12').selectmenu('refresh')
-                    log ('clicking?')
-                    $('button#prev-year').trigger('click')
-                }
-            })
-
-        $('button#next-month')
-            .button()
-            .click (function (event) {
-                log ("NEXT_MONTH")
-                var month;
-                try {
-                    month = parseInt(self.$month_select.val())
-                    if (isNaN(month))
-                        throw "Nan"
-                } catch (error) {
-                    month = 0;
-                }
-                log ('month: ' + month)
-
-                if (month < 12) {
-                    month++;
-//                    log ("month now: " + month)
-                    self.$month_select.val(month2str(month)).selectmenu('refresh')
-                    ROLL_COMPARE.render()
-                } else if (month == 12) {
-                    self.$month_select.val('01').selectmenu('refresh')
-                    log ('clicking?')
-                    $('button#next-year').trigger('click')
-                }
-            })
-
-        for (var i=1997;i<=MAX_YEAR;i++) {
-            $('select#year-select')
-                .append($t('option')
-                    .html(parseInt(i))
-                )
-        }
-        $('select#year-select')
-           .selectmenu({
-                width:'120px',
-                change: function (event) {
-//                    log ("year select change")
-                    var val = $(this).val();
-                    if (!val) {
-                        return alert("please select a year")
-                    }
-//                    log ("VAL: " + val)
-                    ROLL_COMPARE.render()
-                }
-            })
-
-
-        $('button#prev-year')
-            .button()
-            .click (function (event) {
-//                log ("PREV_YEAR")
-                var year;
-                try {
-                    year = parseInt($('select#year-select').val())
-                    if (isNaN(year))
-                        throw ("year is Nan")
-                } catch (error) {
-
-                }
-                if (year > MIN_YEAR) {
-                    --year;
-//                    log ("year now: " + year)
-                    $('select#year-select').val(year).selectmenu('refresh')
-                    ROLL_COMPARE.render()
-                }
-            })
-
-        $('button#next-year')
-            .button()
-            .click (function (event) {
-                log ("NEXT_YEAR")
-                var year;
-                try {
-                    year = parseInt($('select#year-select').val())
-                    if (isNaN(year))
-                        throw ("year is Nan")
-                } catch (error) {
-                    year = MIN_YEAR
-                }
-                if (year < MAX_YEAR) {
-                    year++;
-//                    log ("year now: " + year)
-                    $('select#year-select').val(year).selectmenu('refresh')
-                    ROLL_COMPARE.render()
-                }
-            })
-    },
-
-})

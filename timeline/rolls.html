@@ -34,11 +34,8 @@
 <script>
     var CONTROL;
     $(function () {
-        log ("hello world");
-        // NOTE: roll_compare must be instantiated before control
-        ROLL_COMPARE = new RollCompare('media', 'purg')
-        // CONTROL = new Controller();
-        CONTROL = new RollController();
+
+        CONTROL = new RollController(LIB_1, LIB_2);
 
     })
 

@@ -1,17 +1,3 @@
-var DATE_FORMAT = "YYYY-MM-DD";
-var MAX_YEAR = 2016
-var MIN_YEAR = 1997
-
-var LIB_CONFIGS = {
-    'jlo' : 'jloAlbumData',
-    'video' : 'videoStorageData',
-    'purg': 'purgAlbumData',
-    'media': 'mediaAlbumData'
-}
-
-function lib_data_path (lib) {
-    return 'data/' + LIB_CONFIGS[lib]
-}
 
 var TimelineController = Controller.extend({
 
@@ -19,8 +5,8 @@ var TimelineController = Controller.extend({
         this._super()
 
         this.timelines = {
-            'timeline-1': new Timeline('purg', '#timeline-1', 'select#library-1-select'),
-            'timeline-2': new Timeline('media', '#timeline-2', 'select#library-2-select'),
+            'timeline-1': new Timeline(LIB_1, '#timeline-1'),
+            'timeline-2': new Timeline(LIB_2, '#timeline-2'),
         }
 
         var self = this;
@@ -33,8 +19,9 @@ var TimelineController = Controller.extend({
             return false;
         })
 
-        if  (PARAMS.year) {
+        if (PARAMS.year) {
             this.setYear(PARAMS.year);
+            this.setMonth(PARAMS.month);
             this.doAction()
         }
 
@@ -45,13 +32,15 @@ var TimelineController = Controller.extend({
         log ('TimelineController doAction - ');
         if (event)
             log (" - event target:" + event.target.id)
-        if (!event || event.target.id.indexOf('month') == -1) {
 
-            for (var id in this.timelines) {
-                this.timelines[id].render();
-            }
+        for (var id in this.timelines) {
+            this.timelines[id].render();
         }
+    },
 
+    handle_month_select: function (event, val) {
+        log ("TIMELINE controller handle_month_select")
+        this.doAction();
     }
 
 });
@@ -77,36 +66,16 @@ var Timeline = Class.extend ({
 //        this.initialize_select()
     },
 
-/*    set_lib: function (lib) {
-        this.lib = lib;
-        // this.$select.val(lib).selectmenu('refresh')
-    },*/
-
-/*    initialize_select_OFF: function (current) {
-        log ('initialize_select')
-        var self=this;
-        for (var key in LIB_CONFIGS) {
-            this.$select
-                .selectmenu({
-                    width:'100px',
-                    change: function (event) {
-                        var val = $(this).val();
-                        if (!val) {
-                            return alert("please select a library")
-                        }
-                        log ("VAL: " + val)
-                        self.set_lib (val)
-                        self.render()
-                    }
-                })
-        }
-    },*/
-
-    getDateExtents: function  () {
+    getDateExtents: function  (windowOpen, windowClose) {
         var dates = Object.keys(this.data)
         dates.sort()
         var start_str = dates[0]
         var end_str = dates.slice(-1)[0]
+
+        function accept(datestr) {
+            var date = moment(datestr)
+            return !date.isBefore(windowOpen) && !date.isAfter(windowClose)
+        }
 
         var start = moment(start_str, DATE_FORMAT)
         var end = moment(end_str, DATE_FORMAT)
@@ -115,9 +84,11 @@ var Timeline = Class.extend ({
         var total = 0
         var max_height = 0
         for (var day in this.data) {
-            var num_items = this.data[day].length
-            max_height = Math.max(max_height, num_items)
-            total += num_items
+            if (accept(day)) {
+                var num_items = this.data[day].length
+                max_height = Math.max(max_height, num_items)
+                total += num_items
+            }
         }
 
         return {
@@ -132,27 +103,46 @@ var Timeline = Class.extend ({
     render: function () {
         if (!this.lib)
             throw ("render_timeline requires that lib is intialized")
-        var year;
-        try {
-            year = parseInt($('select#year-select').val())
-        } catch (error) {}
-        if (year) {
+
+        var year = $('select#year-select').val().trim()
+        var month = $('select#month-select').val().trim()
+
+        log ("MONTH: " + month)
+
+       // if (!isNaN(year) && !isNaN(month)) {
+
+        var granularity = null; // year | month
+
+        if (year && month) {
+            granularity = 'month'
+            log("MONth vIEW")
+            this.start = moment(year + "-" + month + "-01")
+        }
+        else if (year) {
+            granularity = 'year'
             this.start = moment(year + "-01-01")
-            this.end = moment(year + "-12-31")
+            log ('year view')
+        }
+
+        if (granularity) {
+
+            log ('granularity: ' + granularity)
+            this.end = this.start.clone().endOf(granularity)
             var url = lib_data_path(this.lib) + '/' + year + '-01-01.json';
             var lib = this.lib;
             var self = this;
             getTimelineData(url, function (resp) {
                 self.data = resp
-                self.update_dom(year);
+                self.update_dom(granularity);
             })
         }
+
     },
 
-    update_dom: function (year) {
+    update_dom: function (granularity) {
         this.$dom.html('')
 
-        var extents = this.getDateExtents();
+        var extents = this.getDateExtents(this.start, this.end);
         // log ("EXTENTS: " + stringify(extents))
 
         var y_factor = this.height/extents.max_height;
@@ -165,8 +155,8 @@ var Timeline = Class.extend ({
 
         log ("start_date: " + fmt(start_date));
         log ("end_date: " + fmt(end_date));
-        log ("days: " + days);
-        log ("day_px: " + day_px);
+//        log ("days: " + days);
+//        log ("day_px: " + day_px);
 
         // add day for inclusive
 
@@ -217,127 +207,43 @@ var Timeline = Class.extend ({
             .css({left:0,top:0})
             .appendTo(this.$dom)
 
-            $t('div')
-                .html(parseInt(extents.total))
-                .addClass('axis-label')
-                .css({right:0,top:0})
-                .appendTo(this.$dom)
+        $t('div')
+            .html(parseInt(extents.total))
+            .addClass('axis-label')
+            .css({right:0,top:0})
+            .appendTo(this.$dom)
+
+        // not ready for prime time
+        if (false && granularity == 'year') {
+            // make clickable regions for months
+
+            for (var i=0;i<12;i++) {
+
+                $t('div')
+                    .addClass ('timeline-overlay')
+                    .css ({
+                        position:'absolute',
+                        left:Math.floor((i/12) * this.width),
+                        top:0,
+                        width:Math.floor (this.width/12),
+                        height:this.height,
+                        border:'orange solid thin',
+                        background:'transparent'
+                    })
+                    .appendTo(this.$dom)
+            }
+        }
     }
 
 })
 
-
-
-function fmt (mom) {
-    return mom.format(DATE_FORMAT)
-}
-
-
 function getTimelineData (url, callback) {
-    log ("making call ... " + url)
-    $.getJSON(url, function (resp) {
-            log ("resp is a " + typeof resp);
-            if (callback)
-                callback(resp)
-    })
+    getJsonData(url, callback);
+//    log ("making call ... " + url)
+//    $.getJSON(url, function (resp) {
+//            log ("resp is a " + typeof resp);
+//            if (callback)
+//                callback(resp)
+//    })
 }
 
-// ------------------------
-
-var ControllerOff = Class.extend ({
-    init: function () {
-        this.lib = null;
-        var self=this;
-        for (var i=1;i<13;i++) {
-            $('select#month-select-OFF')
-                .append($t('option')
-                    .html(i<10 ? "0"+parseInt(i) : parseInt(i))
-                )
-                .selectmenu({
-                    width:'100px',
-                    change: function (event) {
-                        var val = $(this).val();
-                        if (!val) {
-                            return alert("please select a month")
-                        }
-                        log ("VAL: " + val)
-                    }
-                })
-                .hide()
-        }
-
-        for (var i=1997;i<=MAX_YEAR;i++) {
-            $('select#year-select')
-                .append($t('option')
-                    .html(parseInt(i))
-                )
-        }
-        $('select#year-select')
-            .selectmenu({
-                width:'120px',
-                change: function (event) {
-                    var val = $(this).val();
-                    if (!val) {
-                        return alert("please select a year")
-                    }
-                    log ("VAL: " + val)
-                    for (var id in self.timelines) {
-                        self.timelines[id].render();
-                    }
-//                        self.render_timeline ()
-                }
-            })
-
-        $('button#prev-year')
-            .button()
-            .click (function (event) {
-                log ("PREV_YEAR")
-                var year;
-                try {
-                    year = parseInt($('select#year-select').val())
-                } catch (error) {}
-                if (year > MIN_YEAR) {
-                    --year;
-                    log ("year now: " + year)
-                    $('select#year-select').val(year).selectmenu('refresh')
-                    for (var id in self.timelines) {
-                        self.timelines[id].render();
-                    }
-                }
-            })
-
-        $('button#next-year')
-            .button()
-            .click (function (event) {
-                log ("NEXT_YEAR")
-                var year;
-                try {
-                    year = parseInt($('select#year-select').val())
-                } catch (error) {}
-                if (year < MAX_YEAR) {
-                    year++;
-                    log ("year now: " + year)
-                    $('select#year-select').val(year).selectmenu('refresh')
-                    for (var id in self.timelines) {
-                        self.timelines[id].render();
-                    }
-                }
-            })
-
-        for (var key in LIB_CONFIGS) {
-            log ("-" + key)
-
-            $('select.lib-select').each(function (i, select) {
-                $(select).append($t('option')
-                    .html(key)
-                )
-            })
-        }
-
-        this.timelines = {
-            'timeline-1': new Timeline('#timeline-1', 'select#library-1-select'),
-            'timeline-2': new Timeline('#timeline-2', 'select#library-2-select'),
-        }
-    },
-
-})

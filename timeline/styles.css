@@ -2,8 +2,10 @@ body {
     font-family:UbuntuRegular, arial;
 }
 
-h1 {
+h1, h2, h3 {
     font-family:UbuntuBold;
+    margin:0;
+    padding:0;
 }
 
 .timeline {
@@ -131,6 +133,10 @@ h1 {
    .rc-table td.int {
         text-align:right;
         padding-right:10px;
+    }
+   .rc-table tr.match {
+        color:gray;
+        display:none;
     }
 
    .rc-table tr.totals td {

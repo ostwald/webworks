@@ -1,37 +1,17 @@
-/*
-<div id="controls">
-    <select id="library-1-select" class="lib-select">
-        <option value="">- lib -</option>
-    </select>
+var DATE_FORMAT = "YYYY-MM-DD";
+var MAX_YEAR = 2016
+var MIN_YEAR = 1997
 
-    <div id="year-control">
-        <button type="button" id="prev-year">-</button>
-
-        <select id="year-select">
-            <option value="">- year -</option>
-        </select>
-        <button type="button" id="next-year">+</button>
-    </div>
-
-    <div id="month-control" style="display:none;border:red thin solid;">
-        <button type="button" id="prev-month">-</button>
-
-        <select id="month-select">
-            <option value="">- month -</option>
-        </select>
-        <button type="button" id="next-month">+</button>
-    </div>
-
-    <select id="library-2-select" class="lib-select">
-        <option value="">- lib -</option>
-    </select>
-
-</div>
-*/
-
-function month2str (month_num) {
-    return month_num < 10 ? "0"+parseInt(month_num) : parseInt(month_num)
+var LIB_CONFIGS = {
+    'jlo' : 'jloAlbumData',
+    'video' : 'videoStorageData',
+    'purg': 'purgAlbumData',
+    'media_1': 'mediaAlbumData_1',
+    'media_2': 'mediaAlbumData_2',
 }
+
+var LIB_1 = 'purg';
+var LIB_2 = 'media_2'
 
 var Controls = Class.extend({
     init: function () {
@@ -231,7 +211,6 @@ var Controller = Class.extend ({
             return alert("please select a month")
         }
         log ("month: " + month)
-        log ("other: " + parseInt($('select#month-select').val()))
 
         // self.doAction(event)
 
@@ -257,3 +236,25 @@ var Controller = Class.extend ({
         log ("DO_ACTION overrides me")
     }
 })
+
+// UTILS ------------------
+function lib_data_path (lib) {
+    return 'data/' + LIB_CONFIGS[lib]
+}
+
+function month2str (month_num) {
+    return month_num < 10 ? "0"+parseInt(month_num) : parseInt(month_num)
+}
+
+function fmt (mom) {
+    return mom.format(DATE_FORMAT)
+}
+
+function getJsonData (url, callback) {
+    log ("making call ... " + url)
+    $.getJSON(url, function (resp) {
+//            log ("resp is a " + typeof resp);
+            if (callback)
+                callback(resp)
+    })
+}
