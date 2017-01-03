@@ -161,7 +161,7 @@ var Timeline = Class.extend ({
         var end_date = this.end || extents.end
 
         var days = Math.abs(end_date - start_date) / (60 * 60 * 24 * 1000)
-        var day_px = Math.floor(this.width/(days+0));
+        var day_px = Math.floor(this.width/(days+1));
 
         log ("start_date: " + fmt(start_date));
         log ("end_date: " + fmt(end_date));

@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title>Custom Fonts</title>
+    <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+    <script src="../js/base-script.js"></script>
+    <link rel="stylesheet" href="../assets/fonts.css">
+    <style>
+        #font-table {
+            width:80%;
+            border-collapse:collapse;
+        }
+        #font-table td, #font-table th {
+            padding:3px;
+            border:lightgray solid thin;
+        }
+        #font-table th {
+            background:gray;
+            color:white;
+            text-align:center;
+        }
+
+    </style>
+</head>
+<body>
+<h1>Exploring the fancy fonts</h1>
+
+<table id="font-table"/>
+
+</body>
+<script>
+FONTS = [
+  "UbuntuRegular",
+  "UbuntuItalic",
+  "UbuntuBold",
+  "UbuntuBoldItalic",
+  "UbuntuLight",
+  "UbuntuLightItalic",
+  "UbuntuMedium",
+  "UbuntuMediumItalic",
+  "UbuntuCondensedRegular",
+  "CantarellRegular",
+  "CantarellOblique",
+  "CantarellBold",
+  "CantarellBoldOblique"
+]
+
+cols = ['font', 9, 12, 18]
+var header = $t('tr')
+$(cols).each (function (i, col) {
+    header.append($t('th').html(col))
+
+})
+$('table#font-table').html(header)
+
+$(FONTS).each (function(i, family) {
+    var row = $t('tr')
+    $(cols).each (function (i, col) {
+        var cell = $t('td')
+            .css ('font-family', family)
+            .html(family)
+        if (i != 0)
+            cell.css('font-size', col)
+        row.append(cell)
+     })
+    $('table#font-table').append(row)
+})
+
+</script>
+</html>

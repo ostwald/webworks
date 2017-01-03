@@ -203,19 +203,27 @@ var RollCompare = Class.extend ({
 
         //log(stringify(records));
         for (var i=1;i<13;i++) {
-            var month = moment('2011-' + i < 10 ? i.toString() : '0'+ i.toString()).format("MMMM")
+            var mom = moment('2011-' + i < 10 ? i.toString() : '0'+ i.toString())
+            var month = mom.format("MMMM")
+            var month_str = mom.format("MM")
             var lib1_data = summary_data[lib1][month]
             var lib2_data = summary_data[lib2][month]
-
+            var self = this;
             var $row = $t('tr')
                 .attr('id', month)
+                .data('month', month_str)
                 .append($t('td').html(month))
 //                .append($t('td').html(record.id))
                 .append($t('td').addClass('int').html(lib1_data && lib1_data.roll_count))
                 .append($t('td').addClass('int').html(lib2_data && lib2_data.roll_count))
                 .append($t('td').addClass('int').html(lib1_data && lib1_data.item_count))
                 .append($t('td').addClass('int').html(lib2_data && lib2_data.item_count))
-
+                .click (function (event) {
+                    log (" - " + this.id + " was clicked")
+                    log ("month_str: " + $(this).data('month'))
+                    $('select#month-select').val($(this).data('month')).selectmenu('refresh')
+                    self.render()
+                })
                 .appendTo($dom)
 
         }
