@@ -8,62 +8,22 @@ var LIB_CONFIGS = {
     'purg': 'purgAlbumData',
     'media_1': 'mediaAlbumData_1',
     'media_2': 'mediaAlbumData_2',
+    'mtSherman': 'MtShermanAlbumData',
+    'pack161' : 'Pack161AlbumData'
 }
 
-var LIB_1 = 'purg';
-var LIB_2 = 'media_2'
+//var LIB_1 = 'purg';
+//var LIB_1 = 'media_1';
+//var LIB_2 = 'media_2'
 
-var Controls = Class.extend({
-    init: function () {
-        this.$dom = $('#controls')
-
-        this.$year_select = $t('select')
-            .attr('id', 'year-select')
-            .html($t('option')
-                .html(' - year -')
-                .val(''))
-
-        this.$year_control = $t('div')
-                .attr('id', 'year-control')
-                .html($t('button')
-                    .attr('type','button')
-                    .attr('id', 'prev-year')
-                    .html('-'))
-                .append(this.$year_select)
-                .append($t('button')
-                    .attr('type','button')
-                    .attr('id', 'next-year')
-                    .html('+'))
-
-        this.$month_select = $t('select')
-            .attr('id', 'month-select')
-            .html($t('option')
-                .html(' - month -')
-                .val(''))
-
-        this.$month_control = $t('div')
-                .attr('id', 'month-control')
-                .html($t('button')
-                    .attr('type','button')
-                    .attr('id', 'prev-month')
-                    .html('-'))
-                .append(this.$month_select)
-                .append($t('button')
-                    .attr('type','button')
-                    .attr('id', 'next-month')
-                    .html('+'))
-
-        this.$dom
-            .html(this.$year_control)
-            .append(this.$month_control)
-
-    }
-})
+var LIB_1 = "media_2"
+var LIB_2  = 'purg'
 
 var Controller = Class.extend ({
     init: function () {
         log ("Controller")
         var self=this;
+        this.render_nav_links()
         this.controls = new Controls();
 //        this.$month_select = $('select#month-select');
         this.$month_select = this.controls.$month_select;
@@ -202,6 +162,36 @@ var Controller = Class.extend ({
                 }
             })
 
+        $('#timeline-link').click (function (event) {
+            log ("timeline link click")
+            try {
+                var url = "index.html?year=" + self.getYear() + "&month=" + self.getMonth();
+                log ("url: " + url)
+                location = url;
+            } catch (error) {
+                log ("ERROR could not create url: " + error)
+            }
+
+            return false;
+        })
+
+        $('#rolls-link').click (function (event) {
+            event.preventDefault();
+            log ("rolls link click")
+            var url = "rolls.html?year=" + self.getYear() + "&month=" + self.getMonth();
+            log ("url: " + url)
+            location = url;
+            return false;
+        })
+
+        $('#items-link').click (function (event) {
+            event.preventDefault();
+            var url = "items.html?year=" + self.getYear() + "&month=" + self.getMonth();
+            log ("url: " + url)
+            location = url;
+            return false;
+        })
+
     },
 
     handle_month_select: function (event, val) {
@@ -234,6 +224,92 @@ var Controller = Class.extend ({
 
     doAction: function (event) {
         log ("DO_ACTION overrides me")
+    },
+
+    render_nav_links: function () {
+        log ("render_nav_links (" + this.name + ")")
+        var $dom = $t('div')
+            .attr('id', 'nav-links')
+            .css({float:'right'})
+            .html('')
+            .prependTo($(document.body));
+
+        var config = [
+            ['timeline', 'timeline-link' , 'Timeline'],
+            ['roll', 'rolls-link', 'Roll Compare'],
+            ['item', 'items-link', 'Item Compare']
+        ]
+        var self = this;
+        $(config).each (function (i, data) {
+            if (data[0] == self.name)
+                $dom.append($t('span').html(data[2]))
+            else
+                $dom.append($t('a')
+                    .attr('href', '#')
+                    .attr('id', data[1])
+                    .html(data[2]))
+
+            if (i < config.length -1)
+                $dom.append($t('span').html(' | '))
+
+        })
+
+    }
+
+})
+
+/* produces the dom for a Controller instance
+
+    exposes inc
+    - $dom
+    - $year_select
+    - $month_select
+    - ...
+*/
+var Controls = Class.extend({
+    init: function () {
+        this.$dom = $('#controls')
+
+        this.$year_select = $t('select')
+            .attr('id', 'year-select')
+            .html($t('option')
+                .html(' - year -')
+                .val(''))
+
+        this.$year_control = $t('div')
+                .attr('id', 'year-control')
+                .html($t('button')
+                    .attr('type','button')
+                    .attr('id', 'prev-year')
+                    .html('-'))
+                .append(this.$year_select)
+                .append($t('button')
+                    .attr('type','button')
+                    .attr('id', 'next-year')
+                    .html('+'))
+
+        this.$month_select = $t('select')
+            .attr('id', 'month-select')
+            .html($t('option')
+                .html(' - month -')
+                .val(''))
+
+        this.$month_control = $t('div')
+                .attr('id', 'month-control')
+                .html($t('button')
+                    .attr('type','button')
+                    .attr('id', 'prev-month')
+                    .html('-'))
+                .append(this.$month_select)
+                .append($t('button')
+                    .attr('type','button')
+                    .attr('id', 'next-month')
+                    .html('+'))
+
+        this.$dom
+            .html(this.$year_control)
+            .append(this.$month_control)
+
     }
 })
 
@@ -251,7 +327,7 @@ function fmt (mom) {
 }
 
 function getJsonData (url, callback) {
-    log ("making call ... " + url)
+    // log ("making call ... " + url)
     $.getJSON(url, function (resp) {
 //            log ("resp is a " + typeof resp);
             if (callback)

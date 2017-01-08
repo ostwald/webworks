@@ -1,6 +1,7 @@
 
 var RollController = Controller.extend({
     init: function (lib1, lib2) {
+        this.name = 'roll'
         this._super();
 
         var self = this;
@@ -20,7 +21,7 @@ var RollController = Controller.extend({
 
         // Here is where to instantiate ROLL COMPARE
         this.rollCompare = new RollCompare(lib1, lib2)
-        log ("DOOM: " + this.controls.$dom.attr('id'))
+        log ("DOM: " + this.controls.$dom.attr('id'))
         log ("RollController initiated")
     },
 
@@ -44,22 +45,13 @@ var RollController = Controller.extend({
     }
 })
 
-
-
-/**
-   montitors loading of data, and when complete,
-   "compiles" (i.e, merges) the data from different libs and
-   messages (e.g., filter, sort) before returning
-   {
-      records: <merged record list>
-      stats: <e.g. number of items from each lib>
-   }
-*/
-var RollCompare = Class.extend ({
+var SimpleRoleCompare = Class.extend({
     init: function (lib1, lib2) {
+
         this.$dom = $('#rolls-table')
         this.lib1 = lib1
         this.lib2 = lib2
+
         this.columns = ['date', 'name', 'size', lib1, lib2]
         this.$month_select = $('select#month-select');
         this.$year_select = $('select#year-select');
@@ -78,23 +70,183 @@ var RollCompare = Class.extend ({
             log (" - loaded rolldata (" + self.lib_data.length + ")")
             if (self.lib_data.length == 2) {
                 log ("populating ..")
-                if (PARAMS.year) {
-                    $('select#year-select')
-                        .val(PARAMS.year)
-                        .selectmenu('refresh')
-
-                    if (PARAMS.month) {
-                        $('select#month-select')
-                            .val(PARAMS.month)
-                            .selectmenu('refresh')
-
-                        self.render()
-                    } else {
-                        self.render_summary(PARAMS.year);
-                    }
-                }
+                $(document).trigger ('klm:all-data-loaded')
             }
         })
+    },
+
+})
+
+/**
+   montitors loading of data, and when complete,
+   "compiles" (i.e, merges) the data from different libs and
+   messages (e.g., filter, sort) before returning
+   {
+      records: <merged record list>
+      stats: <e.g. number of items from each lib>
+   }
+*/
+var RollCompare = SimpleRoleCompare.extend ({
+    init: function (lib1, lib2) {
+        this._super(lib1, lib2)
+        var self = this;
+        $(document).on ('klm:all-data-loaded', function (event) {
+            if (PARAMS.year) {
+                $('select#year-select')
+                    .val(PARAMS.year)
+                    .selectmenu('refresh')
+
+                if (PARAMS.month) {
+                    $('select#month-select')
+                        .val(PARAMS.month)
+                        .selectmenu('refresh')
+
+                    self.render()
+                } else {
+                    self.render_summary(PARAMS.year);
+                }
+            }
+
+        })
+    },
+
+    render: function () {
+        log ("-----------------\nrender")
+        var compiled_data;
+        try {
+            compiled_data = this.compile_data();
+        } catch (error) {
+            log (error)
+            return;
+        }
+        var records = compiled_data.records
+        log ("render from " + records.length + " records")
+
+        $('#year-summary-table').hide();
+        $('#rolls-table').show();
+
+        var $header = $t('tr').addClass('header')
+        this.$dom.html($header)
+        $(this.columns).each (function (i, col) {
+            $header.append($t('th').html(col))
+        })
+
+        //log(stringify(records));
+        for (var j=0;j<records.length;j++) {
+            var record = records[j]
+            var $row = $t('tr')
+                .data('lib', record.lib)
+                .addClass(record.match ? 'match' : '')
+                .attr('id', record.id)
+                .append($t('td').addClass('center').html(record.start))
+//                .append($t('td').html(record.id))
+                .append($t('td').html(record.name))
+                .append($t('td').html(record.size).addClass('right'))
+                .append($t('td').html(record.lib == this.lib1 ? 'X' : '-').addClass('center'))
+                .append($t('td').html(record.lib == this.lib2 ? 'X' : '-').addClass('center'))
+                .appendTo(this.$dom)
+
+        }
+        var footer = $t('tr').addClass('totals')
+            .append($t('td'))
+            .append($t('td'))
+            .append($t('td'))
+
+            .append($t('td').addClass('center').html(compiled_data.stats[this.lib1]))
+            .append($t('td').addClass('center').html(compiled_data.stats[this.lib2]))
+
+            .appendTo(this.$dom)
+
+        var self = this;
+        CONTROL.controls.$dom.append($t('div')
+            .html("toggle matches")
+            .css({
+                position: 'absolute',
+                bottom: 5,
+                right: 5,
+                fontSize:'.85em',
+            })
+//            .click (function (event) {
+//                log ("WHAT??")
+//                self.$dom.find('tr.match').each (function (i, li) {
+//                    $(li).toggle();
+//                })
+//            })
+            .click (function (event) {
+                log ("WHAT??")
+                self.$dom.find('tr.match').toggle();
+            })  )
+
+    },
+
+    compile_data: function () {
+        log ("compiling")
+        var comp_recs = []
+        var stats = {}
+//        var year = parseInt($('select#year-select').val())
+//        var month = parseInt($('select#month-select').val());
+
+        var year = $('select#year-select').val();
+        var month = $('select#month-select').val();
+
+        if (!(year && month)) {
+            throw ("please select both a month and a year")
+        }
+
+        log ('-- ' + year + '-' + month)
+
+        $(this.lib_data).each (function (i, rollData) {
+            stats[rollData.name] = 0
+            var records = rollData.getData (function (rec) {
+//                if (rollData.name == 'purg')
+//                    log ('- ' + rec.id + " - " + rec.start)
+                return rec.start.indexOf(year+"-"+month) > -1;
+            })
+            log (i + " - " + records.length)
+
+            // massage records if necessary, and add to comp_recs
+            $(records).each (function (i, rec) {
+//                stats[rollData.name] += 1
+                stats[rollData.name] += parseInt(rec.size)
+                rec.lib = rollData.name
+                comp_recs.push(rec)
+            });
+        })
+        log ("comp_recs has " + comp_recs.length + " records")
+
+        // sort first by date, then by name
+        comp_recs.sort (function (a,b) {
+            if (a.start == b.start) {
+                if (a.name == b.name) {
+                    return parseInt(a.size) > parseInt(b.size)
+                }
+                return a.name.localeCompare(b.name)
+            }
+           return a.start.localeCompare(b.start)
+        })
+
+        prev = null;
+        $(comp_recs).each (function (i, rec) {
+            if (prev) {
+                if (prev.start == rec.start &&
+                    prev.name == rec.name &&
+                    prev.lib != rec.lib)
+                {
+                    prev.match = rec.id
+                    rec.match = prev.id
+
+                }
+                else {
+                    rec.match = ''
+                }
+            }
+            prev = rec;
+        })
+
+        return {
+            records: comp_recs,
+            stats:stats
+        }
     },
 
     /*
@@ -216,146 +368,16 @@ var RollCompare = Class.extend ({
             .appendTo($dom)
     },
 
-    compile_data: function () {
-        log ("compiling")
-        var comp_recs = []
-        var stats = {}
-//        var year = parseInt($('select#year-select').val())
-//        var month = parseInt($('select#month-select').val());
-
-        var year = $('select#year-select').val();
-        var month = $('select#month-select').val();
-
-        if (!(year && month)) {
-            throw ("please select both a month and a year")
-        }
-
-        log ('-- ' + year + '-' + month)
-
-        $(this.lib_data).each (function (i, rollData) {
-            stats[rollData.name] = 0
-            var records = rollData.getData (function (rec) {
-//                if (rollData.name == 'purg')
-//                    log ('- ' + rec.id + " - " + rec.start)
-                return rec.start.indexOf(year+"-"+month) > -1;
-            })
-            log (i + " - " + records.length)
-
-            // massage records if necessary, and add to comp_recs
-            $(records).each (function (i, rec) {
-//                stats[rollData.name] += 1
-                stats[rollData.name] += parseInt(rec.size)
-                rec.lib = rollData.name
-                comp_recs.push(rec)
-            });
-        })
-        log ("comp_recs has " + comp_recs.length + " records")
-
-        // sort first by date, then by name
-        comp_recs.sort (function (a,b) {
-            if (a.start == b.start) {
-                if (a.name == b.name) {
-                    return parseInt(a.size) > parseInt(b.size)
-                }
-                return a.name.localeCompare(b.name)
-            }
-           return a.start.localeCompare(b.start)
-        })
-
-        prev = null;
-        $(comp_recs).each (function (i, rec) {
-            if (prev) {
-                if (prev.start == rec.start &&
-                    prev.name == rec.name &&
-                    prev.lib != rec.lib)
-                {
-                    prev.match = rec.id
-                    rec.match = prev.id
-
-                }
-                else {
-                    rec.match = ''
-                }
-            }
-            prev = rec;
-        })
-
-        return {
-            records: comp_recs,
-            stats:stats
-        }
-    },
-
-    render: function () {
-        log ("-----------------\nrender")
-        var compiled_data;
-        try {
-            compiled_data = this.compile_data();
-        } catch (error) {
-            log (error)
-            return;
-        }
-        var records = compiled_data.records
-        log ("render from " + records.length + " records")
-
-        $('#year-summary-table').hide();
-        $('#rolls-table').show();
-
-        var $header = $t('tr').addClass('header')
-        this.$dom.html($header)
-        $(this.columns).each (function (i, col) {
-            $header.append($t('th').html(col))
-        })
-
-        //log(stringify(records));
-        for (var j=0;j<records.length;j++) {
-            var record = records[j]
-            var $row = $t('tr')
-                .data('lib', record.lib)
-                .addClass(record.match ? 'match' : '')
-                .attr('id', record.id)
-                .append($t('td').addClass('center').html(record.start))
-//                .append($t('td').html(record.id))
-                .append($t('td').html(record.name))
-                .append($t('td').html(record.size).addClass('right'))
-                .append($t('td').html(record.lib == this.lib1 ? 'X' : '-').addClass('center'))
-                .append($t('td').html(record.lib == this.lib2 ? 'X' : '-').addClass('center'))
-                .appendTo(this.$dom)
-
-        }
-        var footer = $t('tr').addClass('totals')
-            .append($t('td'))
-            .append($t('td'))
-            .append($t('td'))
-
-            .append($t('td').addClass('center').html(compiled_data.stats[this.lib1]))
-            .append($t('td').addClass('center').html(compiled_data.stats[this.lib2]))
-
-            .appendTo(this.$dom)
-
-        var self = this;
-        CONTROL.controls.$dom.append($t('div')
-            .html("toggle matches")
-            .css({
-                position: 'absolute',
-                bottom: 5,
-                right: 5,
-                fontSize:'.85em',
-            })
-//            .click (function (event) {
-//                log ("WHAT??")
-//                self.$dom.find('tr.match').each (function (i, li) {
-//                    $(li).toggle();
-//                })
-//            })
-            .click (function (event) {
-                log ("WHAT??")
-                self.$dom.find('tr.match').toggle();
-            })  )
-
-    },
-
 })
+
+/*
+    probably misnamed.
+    this class cosumes data in roll_data file, which contains id, start and end times
+    of each roll in a library.
+
+    Therefore it represents the library, since it can access any item
+    via the roll files (of which the id is stored with roll data)
+*/
 
 var RollData = Class.extend({
     init: function (data, name) {
@@ -379,5 +401,3 @@ var RollData = Class.extend({
 
 
 })
-
-

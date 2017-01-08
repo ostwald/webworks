@@ -4,7 +4,7 @@
     <meta http-equiv="content-type" content="text/html; charset=utf-8"/>
 
 
-    <title>Roll Comparison</title>
+    <title>Item Comparison</title>
     <link rel="stylesheet" href="../assets/fonts.css">
     <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
     <link rel="stylesheet" href="styles.css">
@@ -12,28 +12,37 @@
     <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
     <script src="../js/base-script.js"></script>
     <script src="../js/moment.min.js"></script>
-    <!--<script src="videoStorageData.json"></script>
-    <script src="jloAlbumData.json"></script>-->
     <script src="control-script.js"></script>
     <script src="rolls-script.js"></script>
+    <script src="items-script.js"></script>
 <title></title>
 </head>
 
 <body>
 
-<h1>Roll Comparison</h1>
-<div id="roll-compare">
+<!--
+<div style="float:right">
+    <a id="timeline-link" href="#">Timeline</a> |
+    <a id="rolls-link" href="#">Roll Compare</a> |
+    <a id="items-link" href="#">Item Compare</a>
+</div>
+-->
+
+
+<h1>Item Comparison</h1>
+
+<div id="item-compare">
     <div id="controls"></div>
-    <table id="rolls-table" class="rc-table"></table>
-    <table id="year-summary-table" class="rc-table"></table>
+    <table id="items-table" class="rc-table"></table>
 </div>
 
 </body>
 <script>
+
     var CONTROL;
     $(function () {
 
-        CONTROL = new RollController(LIB_1, LIB_2);
+        CONTROL = new ItemController(LIB_1, LIB_2);
 
     })
 

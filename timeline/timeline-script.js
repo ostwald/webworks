@@ -2,6 +2,7 @@
 var TimelineController = Controller.extend({
 
     init: function () {
+        this.name = 'timeline'
         this._super()
 
         this.timelines = {
